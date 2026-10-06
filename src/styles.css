@@ -672,3 +672,41 @@ button.meal-card {
 .tabbar__item--active svg {
   stroke-width: 2.5;
 }
+
+/* ---------- Connexion ---------- */
+
+.gate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: calc(32px + var(--safe-top)) 16px calc(32px + var(--safe-bottom));
+  text-align: center;
+}
+
+.gate > * {
+  width: 100%;
+  max-width: 360px;
+}
+
+.gate__brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.gate__brand h1 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.gate__logo {
+  display: block;
+}
+
+.gate .notice {
+  text-align: left;
+}

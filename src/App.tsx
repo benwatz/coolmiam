@@ -1,5 +1,5 @@
 import { useState } from 'preact/hooks';
-import { repo } from './db';
+import { useRepo } from './auth/session';
 import { useLiveQuery } from './db/useLiveQuery';
 import { nowTimeStr, todayStr } from './domain/dates';
 import { suggestMealType } from './domain/meals';
@@ -21,7 +21,8 @@ export function App() {
   const [form, setForm] = useState<FormDraft | null>(() => loadDraft());
   const [tab, setTab] = useState<Tab>('journal');
   const [date, setDate] = useState<string>(() => form?.values.date ?? todayStr());
-  const colors = useLiveQuery(() => repo.getTypeColors(), []) ?? DEFAULT_TYPE_COLORS;
+  const repo = useRepo();
+  const colors = useLiveQuery(repo.watchTypeColors, [repo]) ?? DEFAULT_TYPE_COLORS;
 
   const closeForm = () => {
     clearDraft();

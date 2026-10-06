@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { repo } from '../../db';
+import { useRepo } from '../../auth/session';
 import { useLiveQuery } from '../../db/useLiveQuery';
 import { addDays, formatShortDate, isValidDateStr, todayStr } from '../../domain/dates';
 import { exportFileName } from '../../domain/meals';
@@ -17,6 +17,7 @@ interface Generated {
 }
 
 export function ExportScreen({ colors }: Props) {
+  const repo = useRepo();
   const [start, setStart] = useState(() => addDays(todayStr(), -6));
   const [end, setEnd] = useState(() => todayStr());
   const [generating, setGenerating] = useState(false);
@@ -30,9 +31,9 @@ export function ExportScreen({ colors }: Props) {
       ? 'La date de fin doit être postérieure ou égale à la date de début.'
       : null;
 
-  const count = useLiveQuery(
-    () => (rangeError ? Promise.resolve(0) : repo.countMealsInRange(start, end)),
-    [start, end, rangeError],
+  const count = useLiveQuery<number>(
+    (cb) => (rangeError ? (cb(0), () => {}) : repo.watchMealCount(start, end, cb)),
+    [repo, start, end, rangeError],
   );
 
   // URL d'objet du PDF courant, libérée dès qu'elle est remplacée ou à la sortie de l'écran.

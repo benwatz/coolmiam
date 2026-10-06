@@ -1,4 +1,4 @@
-import { repo } from '../../db';
+import { useRepo } from '../../auth/session';
 import { useLiveQuery } from '../../db/useLiveQuery';
 import type { Meal, TypeColors } from '../../domain/types';
 import { MealCard } from '../../ui/MealCard';
@@ -14,7 +14,8 @@ interface Props {
 }
 
 export function JournalScreen({ date, colors, onDateChange, onAdd, onEdit }: Props) {
-  const meals = useLiveQuery(() => repo.getMealsByDate(date), [date]);
+  const repo = useRepo();
+  const meals = useLiveQuery<Meal[]>((cb) => repo.watchMealsByDate(date, cb), [repo, date]);
 
   return (
     <section class="screen screen--journal" aria-labelledby="journal-title">

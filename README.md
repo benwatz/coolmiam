@@ -4,9 +4,10 @@ Journal alimentaire personnel sous forme d'application web progressive (PWA), in
 Android et iPhone. Saisie de plusieurs repas par jour, couleur par type de repas, marquage
 "Extra", export PDF A4 partageable.
 
-Les données restent **uniquement sur l'appareil** (IndexedDB) : pas de compte, pas de serveur,
-aucun appel réseau, aucune télémétrie. Rien ne sort de l'appareil, sauf lorsque l'utilisateur
-partage lui-même un PDF.
+Connexion par compte Google (accès sur liste blanche) ; les repas sont enregistrés dans Firestore,
+dans un espace privé par utilisateur, et mis en cache sur l'appareil pour fonctionner hors ligne.
+Pas de télémétrie. Rien d'autre ne sort de l'appareil, sauf lorsque l'utilisateur partage
+lui-même un PDF.
 
 ## Pile technique
 
@@ -14,7 +15,7 @@ partage lui-même un PDF.
 |---|---|
 | Build | Vite + TypeScript |
 | Interface | Preact, CSS simple (variables CSS) |
-| Stockage | IndexedDB via Dexie |
+| Données et connexion | Firebase : Firestore (cache hors ligne) + Authentication (Google) |
 | PWA | vite-plugin-pwa (manifeste + service worker, précache complet) |
 | PDF | jsPDF (vectoriel, texte sélectionnable) + police Roboto intégrée (accents) |
 | Tests | Vitest (unitaires), Playwright (E2E, émulation Pixel 7) |
@@ -42,7 +43,9 @@ Pour utiliser un Chromium déjà installé : variable d'environnement `PW_CHROMI
 
 ```
 src/
-  db/             schéma Dexie, accès aux données, requêtes par plage de dates
+  backend/        Firebase (firebase.ts), stockage mémoire (tests), faux backend E2E
+  auth/           écran de connexion / accès en attente (AuthGate), session
+  db/             accès aux données (repository), hook useLiveQuery
   domain/         types, libellés, couleurs par défaut, dates, validation, contraste
   features/
     journal/      écran Journal, bandeau de date
@@ -55,6 +58,16 @@ public/           icônes et favicon
 tests/unit/       tests Vitest
 tests/e2e/        tests Playwright
 ```
+
+## Firebase (projet `coolmiam`)
+
+- Données : `users/{uid}/meals/{id}` et `users/{uid}/settings/typeColors`.
+- Accès : liste blanche. Règles dans `firestore.rules` (à publier dans la console : Firestore
+  Database > Règles). Un compte approuvé a un document `allowedUsers/{uid}`, créé à la main dans la
+  console. Un compte inconnu qui se connecte écrit une demande dans `accessRequests/{uid}` (email,
+  nom) : copier son UID vers `allowedUsers` pour l'approuver (le document peut être vide).
+- Authentication > Settings > Domaines autorisés : `localhost` et le domaine GitHub Pages.
+- Les tests E2E utilisent un faux backend (build `--mode e2e`, `npm run build:e2e`), sans réseau.
 
 ## Déploiement statique en HTTPS (GitHub Pages)
 

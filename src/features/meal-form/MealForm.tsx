@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'preact/hooks';
-import { repo } from '../../db';
+import { useRepo } from '../../auth/session';
 import { textColorFor } from '../../domain/contrast';
 import { hasErrors, validateMeal, type MealErrors } from '../../domain/meals';
 import {
@@ -25,6 +25,7 @@ interface Props {
 }
 
 export function MealForm({ mealId, initialValues, colors, onSaved, onCancel, onDeleted }: Props) {
+  const repo = useRepo();
   const [values, setValues] = useState<MealInput>(initialValues);
   const [errors, setErrors] = useState<MealErrors>({});
   const [submitted, setSubmitted] = useState(false);

@@ -1,5 +1,6 @@
 import { render } from 'preact';
 import { App } from './App';
+import { AuthGate } from './auth/AuthGate';
 import './styles.css';
 
 /** Demande de stockage persistant au premier lancement (limite le risque d'effacement). */
@@ -14,4 +15,9 @@ async function requestPersistence() {
 }
 
 void requestPersistence();
-render(<App />, document.getElementById('app')!);
+render(
+  <AuthGate>
+    <App />
+  </AuthGate>,
+  document.getElementById('app')!,
+);

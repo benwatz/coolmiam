@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'preact/hooks';
-import { repo } from '../../db';
+import { useSession } from '../../auth/session';
 import { textColorFor } from '../../domain/contrast';
 import { DEFAULT_TYPE_COLORS, MEAL_TYPES, MEAL_TYPE_LABELS, type MealType, type TypeColors } from '../../domain/types';
 
@@ -8,6 +8,7 @@ interface Props {
 }
 
 export function SettingsScreen({ colors }: Props) {
+  const { repo, user, signOut } = useSession();
   const [persisted, setPersisted] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -52,14 +53,21 @@ export function SettingsScreen({ colors }: Props) {
           Rétablir les couleurs par défaut
         </button>
 
+        <h3 class="section-title">Compte</h3>
+        <p data-testid="account-email">Connecté en tant que {user.email}</p>
+        <button type="button" class="btn btn--block" onClick={() => void signOut()}>
+          Se déconnecter
+        </button>
+
         <h3 class="section-title">Informations</h3>
         <dl class="info-list">
           <dt>Version</dt>
           <dd data-testid="app-version">{__APP_VERSION__}</dd>
           <dt>Données</dt>
           <dd>
-            Vos repas sont stockés uniquement sur cet appareil. Aucune donnée n'est transmise, sauf lorsque vous partagez
-            vous-même un PDF.
+            Vos repas sont enregistrés dans votre espace privé Firebase (Google), lié à votre compte, et conservés sur
+            cet appareil pour fonctionner hors ligne. Rien d'autre n'est transmis, sauf lorsque vous partagez vous-même
+            un PDF.
           </dd>
           {persisted !== null && (
             <>

@@ -5,14 +5,28 @@ toute évolution fonctionnelle. Dépôt Git = seule source de vérité partagée
 
 ## Pile et commandes
 
-Vite + TypeScript + Preact, Dexie (IndexedDB), vite-plugin-pwa, jsPDF. Voir `README.md` pour les
+Vite + TypeScript + Preact, Firebase (Firestore + Authentication Google), vite-plugin-pwa, jsPDF. Voir `README.md` pour les
 commandes (`npm test`, `npm run test:e2e`, `npm run build`).
 
 ## Décisions de conception
 
 - **Preact plutôt que React** (la spec autorisait les deux) : bundle plus léger. Pas de
-  `preact/compat` : le hook `useLiveQuery` (`src/db/useLiveQuery.ts`) remplace
-  `dexie-react-hooks` en s'abonnant directement à `liveQuery()` de Dexie.
+  `preact/compat` : le hook `useLiveQuery` (`src/db/useLiveQuery.ts`) s'abonne aux méthodes
+  `repo.watch…` (écoutes Firestore `onSnapshot`).
+- **Firebase remplace IndexedDB/Dexie** (octobre 2026, la spec d'origine disait "local uniquement" :
+  ses sections stockage et confidentialité sont caduques). `Store` (`src/backend/types.ts`) est
+  l'interface de stockage ; `createRepository(store)` porte la logique métier. Implémentations :
+  Firestore (`firebase.ts`, cache persistant multi-onglets), mémoire (`memory.ts`, tests unitaires)
+  et faux backend E2E (`fake.ts`, chargé seulement en mode `e2e`, absent du build de production).
+- **Écritures Firestore non attendues** : `putMeal`/`deleteMeal`/`setSetting` ne font pas `await`
+  sur `setDoc`/`deleteDoc` (hors ligne, ces promesses ne se résolvent qu'à la reconnexion) ; l'écriture
+  locale est visible immédiatement par les écoutes. Les erreurs serveur sont seulement journalisées.
+- **Accès sur liste blanche** : `AuthGate` (connexion Google par popup) puis lecture de
+  `allowedUsers/{uid}` ; sinon écran "Accès en attente" et demande dans `accessRequests/{uid}`.
+  Règles dans `firestore.rules` (publiées à la main dans la console Firebase). Un document absent du
+  cache local n'est pas une réponse (`metadata.fromCache`) : on reste en "Vérification".
+- **Pas de migration** des anciens repas IndexedDB (saisis avant octobre 2026) : ils restent dans le
+  navigateur mais ne sont plus lus.
 - **Couleurs non stockées par repas** : table `settings`, clé `typeColors`, normalisée par
   `normalizeTypeColors()` (types manquants ou valeurs invalides retombent sur les défauts).
 - **Couleur du texte** : `textColorFor()` choisit noir ou blanc selon le meilleur contraste WCAG ;
@@ -49,7 +63,7 @@ GitHub Actions.
 ## Hors périmètre v1 / pistes
 
 Export/import JSON de sauvegarde (recommandé, stockage local seul), duplication d'un repas,
-repas favoris. Pas de comptes, synchronisation, calories, photos, statistiques.
+repas favoris, page d'administration des accès. Pas de calories, photos, statistiques.
 
 ## Design
 

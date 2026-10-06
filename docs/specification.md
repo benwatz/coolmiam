@@ -2,6 +2,10 @@
 
 Document destiné à Claude Code. Version 1.1 - 06/10/2026.
 
+> **Mise à jour 06/10/2026 :** le stockage local (IndexedDB/Dexie, sans compte) est remplacé par Firebase
+> (Firestore + connexion Google, accès sur liste blanche). Les mentions "local uniquement", "sans compte",
+> "aucun appel réseau" et "Dexie" ci-dessous sont caduques ; voir `CLAUDE.md` et `README.md`.
+
 ## 1. Objectif
 
 Réaliser une application web progressive (PWA), installable sur Android et iOS, permettant de :
