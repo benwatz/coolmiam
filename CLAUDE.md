@@ -50,3 +50,7 @@ GitHub Actions.
 
 Export/import JSON de sauvegarde (recommandé, stockage local seul), duplication d'un repas,
 repas favoris. Pas de comptes, synchronisation, calories, photos, statistiques.
+
+## Design
+
+Référence visuelle : `docs/design/design-system.md` (jetons, logo, changements demandés). La relire avant toute modification d'interface. Logos sources : `docs/design/logo/`. Le thème sombre est une proposition non validée.

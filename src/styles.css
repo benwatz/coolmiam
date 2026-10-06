@@ -6,6 +6,10 @@
   --primary: #2e7d5b;
   --primary-text: #ffffff;
   --border: #cfd6d1;
+  --border-strong: #7a8780;
+  --brand-soft: #e8f3ee;
+  --sun: #f6b73c;
+  --on-danger: #ffffff;
   --danger: #c62828;
   --extra: #d32f2f;
   --focus: #1565c0;
@@ -82,6 +86,19 @@ body {
   letter-spacing: 0.02em;
 }
 
+.app-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.app-header__logo {
+  display: block;
+  width: 30px;
+  height: 30px;
+  flex: none;
+}
+
 .app-main {
   flex: 1;
   min-height: 0;
@@ -127,7 +144,7 @@ body {
   min-height: 44px;
   min-width: 44px;
   padding: 10px 18px;
-  border: 2px solid var(--border);
+  border: 2px solid var(--border-strong);
   border-radius: var(--radius);
   background: var(--surface);
   color: var(--text);
@@ -151,7 +168,7 @@ body {
 .btn--danger {
   background: var(--danger);
   border-color: var(--danger);
-  color: #ffffff;
+  color: var(--on-danger);
 }
 
 .btn--block {
@@ -384,7 +401,7 @@ button.meal-card {
   width: 100%;
   min-height: 44px;
   padding: 10px 12px;
-  border: 2px solid var(--border);
+  border: 2px solid var(--border-strong);
   border-radius: 10px;
   background: var(--surface);
   color: var(--text);
@@ -428,7 +445,7 @@ button.meal-card {
   align-items: center;
   min-height: 44px;
   padding: 8px 16px;
-  border: 3px solid transparent;
+  border: 3px solid var(--border-strong);
   border-radius: 999px;
   font-weight: 600;
   cursor: pointer;
@@ -565,7 +582,7 @@ button.meal-card {
   padding: 12px;
   border-left: 4px solid var(--primary);
   border-radius: 6px;
-  background: #e8f3ee;
+  background: var(--brand-soft);
 }
 
 /* ---------- Réglages ---------- */
@@ -600,7 +617,7 @@ button.meal-card {
   width: 56px;
   height: 44px;
   padding: 2px;
-  border: 2px solid var(--border);
+  border: 2px solid var(--border-strong);
   border-radius: 10px;
   background: var(--surface);
   cursor: pointer;

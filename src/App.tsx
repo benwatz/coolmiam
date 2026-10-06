@@ -36,7 +36,16 @@ export function App() {
   return (
     <div class="app">
       <header class="app-header">
-        <h1>Coolmiam</h1>
+        <div class="app-header__brand">
+          <img
+            class="app-header__logo"
+            src={`${import.meta.env.BASE_URL}coolmiam-mark.svg`}
+            alt=""
+            width="30"
+            height="30"
+          />
+          <h1>Coolmiam</h1>
+        </div>
       </header>
       <main class="app-main">
         {form ? (
