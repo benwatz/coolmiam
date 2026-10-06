@@ -151,18 +151,18 @@ export function MealForm({ mealId, initialValues, colors, onSaved, onCancel, onD
                   </label>
                 );
               })}
-              <label class={`type-option type-option--extra${values.extra ? ' type-option--checked' : ''}`}>
-                <input
-                  type="checkbox"
-                  checked={values.extra}
-                  onChange={(e) => update('extra', e.currentTarget.checked)}
-                />
-                {values.extra && <IconCheck />}
-                <span>Extra</span>
-              </label>
             </div>
             {errorMsg('type')}
           </fieldset>
+
+          <label class="extra-check">
+            <input
+              type="checkbox"
+              checked={values.extra}
+              onChange={(e) => update('extra', e.currentTarget.checked)}
+            />
+            <span>Extra</span>
+          </label>
 
           <div class="field">
             <label for="field-description">Description</label>

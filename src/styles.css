@@ -464,13 +464,22 @@ button.meal-card {
   border-color: var(--text);
 }
 
-/* Extra : même gabarit que les types, contour rouge une fois coché (comme la carte du Journal). */
-.type-picker .type-option--extra {
-  background: transparent;
+/* Extra : vraie case à cocher, hors de la grille des types, cumulable avec n'importe quel type. */
+.extra-check {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-.type-picker .type-option--extra.type-option--checked {
-  border-color: var(--extra);
+.extra-check input {
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  accent-color: var(--extra);
+  cursor: pointer;
 }
 
 .type-option:focus-within {
