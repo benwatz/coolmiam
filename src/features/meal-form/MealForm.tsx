@@ -14,6 +14,11 @@ import { ConfirmDialog } from '../../ui/ConfirmDialog';
 import { IconCheck } from '../../ui/icons';
 import { saveDraft } from './draft';
 
+/** Réduction minimale de la zone visible à partir de laquelle on considère le clavier ouvert. */
+const KEYBOARD_MIN_HEIGHT = 120;
+/** Marge ajoutée sous les boutons quand le clavier est ouvert (hauteur de la barre de suggestions). */
+const SUGGESTION_BAR_MARGIN = 56;
+
 interface Props {
   mealId: string | null;
   initialValues: MealInput;
@@ -46,8 +51,14 @@ export function MealForm({ mealId, initialValues, colors, onSaved, onCancel, onD
     const vv = window.visualViewport;
     if (!vv) return;
     const root = document.documentElement;
+    let fullHeight = Math.max(window.innerHeight, vv.height);
     const sync = () => {
       root.style.setProperty('--app-height', `${vv.height}px`);
+      // La barre de suggestions du clavier n'est pas toujours retranchée de la zone visible : quand le
+      // clavier est ouvert (zone visible nettement réduite), on ajoute une marge sous les boutons.
+      fullHeight = Math.max(fullHeight, vv.height);
+      const keyboardOpen = vv.height < fullHeight - KEYBOARD_MIN_HEIGHT;
+      root.style.setProperty('--keyboard-margin', keyboardOpen ? `${SUGGESTION_BAR_MARGIN}px` : '0px');
       if (vv.offsetTop > 0) window.scrollTo(0, 0);
     };
     sync();
@@ -57,6 +68,7 @@ export function MealForm({ mealId, initialValues, colors, onSaved, onCancel, onD
       vv.removeEventListener('resize', sync);
       vv.removeEventListener('scroll', sync);
       root.style.removeProperty('--app-height');
+      root.style.removeProperty('--keyboard-margin');
     };
   }, []);
 

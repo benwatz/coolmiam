@@ -73,6 +73,26 @@ test('la date du bandeau tient sur une ligne, même longue, sur un écran de 360
   }
 });
 
+test('une marge est ajoutée sous les boutons quand le clavier virtuel est ouvert', async ({ page }) => {
+  await page.getByRole('button', { name: 'Ajouter un repas' }).click();
+  const actions = page.locator('.form-actions');
+  const bottomPadding = () => actions.evaluate((el) => parseFloat(getComputedStyle(el).paddingBottom));
+  const before = await bottomPadding();
+  // Simule l'ouverture du clavier : la zone visible perd 300 px.
+  await page.evaluate(() => {
+    const vv = window.visualViewport!;
+    Object.defineProperty(vv, 'height', { configurable: true, value: window.innerHeight - 300 });
+    vv.dispatchEvent(new Event('resize'));
+  });
+  await expect.poll(bottomPadding).toBe(before + 56);
+  await page.evaluate(() => {
+    const vv = window.visualViewport!;
+    Object.defineProperty(vv, 'height', { configurable: true, value: window.innerHeight });
+    vv.dispatchEvent(new Event('resize'));
+  });
+  await expect.poll(bottomPadding).toBe(before);
+});
+
 test('choisir un type propose son heure par défaut', async ({ page }) => {
   await page.getByRole('button', { name: 'Ajouter un repas' }).click();
   const time = page.getByLabel('Heure');
