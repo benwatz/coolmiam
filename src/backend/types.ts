@@ -43,9 +43,15 @@ export interface AccessRequest {
   approved: boolean;
 }
 
+/** Résultat de la lecture de admins/{uid} ; error = code Firestore (ex. permission-denied) si la lecture échoue. */
+export interface AdminStatus {
+  isAdmin: boolean;
+  error: string | null;
+}
+
 /** Gestion de la liste blanche, réservée aux administrateurs (documents admins/{uid}). */
 export interface AdminService {
-  watchIsAdmin(uid: string, callback: (isAdmin: boolean) => void): Unsubscribe;
+  watchAdminStatus(uid: string, callback: (status: AdminStatus) => void): Unsubscribe;
   watchAccessList(callback: (items: AccessRequest[]) => void): Unsubscribe;
   approve(request: AccessRequest): Promise<void>;
   /** Retire l'accès d'un compte approuvé (ses données sont conservées mais redeviennent illisibles). */

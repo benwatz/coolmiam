@@ -765,3 +765,21 @@ button.meal-card {
   color: var(--text-muted);
   font-weight: 600;
 }
+
+.diagnostic {
+  margin-top: 12px;
+}
+
+.diagnostic summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.diagnostic__value {
+  font-family: ui-monospace, Consolas, monospace;
+  user-select: all;
+  overflow-wrap: anywhere;
+}

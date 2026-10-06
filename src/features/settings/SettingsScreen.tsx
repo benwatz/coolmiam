@@ -2,6 +2,7 @@ import { useEffect, useState } from 'preact/hooks';
 import { useSession } from '../../auth/session';
 import { useLiveQuery } from '../../db/useLiveQuery';
 import { textColorFor } from '../../domain/contrast';
+import type { AdminStatus } from '../../backend/types';
 import { AdminPanel } from './AdminPanel';
 import { DEFAULT_TYPE_COLORS, MEAL_TYPES, MEAL_TYPE_LABELS, type MealType, type TypeColors } from '../../domain/types';
 
@@ -11,7 +12,8 @@ interface Props {
 
 export function SettingsScreen({ colors }: Props) {
   const { repo, admin, user, signOut } = useSession();
-  const isAdmin = useLiveQuery<boolean>((cb) => admin.watchIsAdmin(user.uid, cb), [admin, user.uid]);
+  const adminStatus = useLiveQuery<AdminStatus>((cb) => admin.watchAdminStatus(user.uid, cb), [admin, user.uid]);
+  const isAdmin = adminStatus?.isAdmin === true;
   const [persisted, setPersisted] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -61,6 +63,23 @@ export function SettingsScreen({ colors }: Props) {
         <button type="button" class="btn btn--block" onClick={() => void signOut()}>
           Se déconnecter
         </button>
+        <details class="diagnostic" data-testid="diagnostic">
+          <summary>Diagnostic</summary>
+          <dl class="info-list">
+            <dt>Identifiant (UID)</dt>
+            <dd class="diagnostic__value">{user.uid}</dd>
+            <dt>Administration</dt>
+            <dd>
+              {adminStatus === undefined
+                ? 'Vérification en cours…'
+                : adminStatus.error
+                  ? `Lecture de admins/${user.uid} refusée ou impossible (${adminStatus.error}).`
+                  : adminStatus.isAdmin
+                    ? 'Administrateur : le document admins/<UID> existe.'
+                    : 'Non administrateur : aucun document admins/<UID> pour cet identifiant.'}
+            </dd>
+          </dl>
+        </details>
 
         {isAdmin && <AdminPanel />}
 

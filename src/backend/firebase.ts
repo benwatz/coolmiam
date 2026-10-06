@@ -112,9 +112,13 @@ function createAdmin(db: Firestore): AdminService {
   const requests = collection(db, 'accessRequests');
   const allowed = collection(db, 'allowedUsers');
   return {
-    // Règles refusant la lecture (compte non admin) : pas administrateur.
-    watchIsAdmin: (uid, callback) =>
-      onSnapshot(doc(db, 'admins', uid), (s) => callback(s.exists()), () => callback(false)),
+    // Lecture refusée ou impossible : pas administrateur, avec le code d'erreur pour le diagnostic.
+    watchAdminStatus: (uid, callback) =>
+      onSnapshot(
+        doc(db, 'admins', uid),
+        (s) => callback({ isAdmin: s.exists(), error: null }),
+        (e) => callback({ isAdmin: false, error: e.code || e.message }),
+      ),
 
     watchAccessList(callback) {
       let requestDocs: QueryDocumentSnapshot[] | null = null;

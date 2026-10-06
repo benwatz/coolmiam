@@ -64,3 +64,12 @@ test('un administrateur approuve, refuse et révoque des demandes', async ({ pag
   await expect(panel.getByTestId('admin-pending')).toHaveCount(0);
   await expect(panel.getByText('Aucune demande en attente.')).toBeVisible();
 });
+
+test('le diagnostic affiche l\'UID et l\'état d\'administration', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Réglages' }).click();
+  await page.getByText('Diagnostic', { exact: true }).click();
+  const diagnostic = page.getByTestId('diagnostic');
+  await expect(diagnostic).toContainText('e2e-user');
+  await expect(diagnostic).toContainText('Non administrateur');
+});

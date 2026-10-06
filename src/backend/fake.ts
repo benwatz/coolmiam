@@ -44,7 +44,9 @@ function createAdmin(): AdminService {
     listeners.forEach((l) => l());
   };
   return {
-    watchIsAdmin: (_uid, callback) => (callback(localStorage.getItem('coolmiam.fakeAdmin') === '1'), () => {}),
+    watchAdminStatus: (_uid, callback) => (
+      callback({ isAdmin: localStorage.getItem('coolmiam.fakeAdmin') === '1', error: null }), () => {}
+    ),
     watchAccessList(callback) {
       const emit = () => callback([...items]);
       listeners.add(emit);
