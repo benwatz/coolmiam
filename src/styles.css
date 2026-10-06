@@ -432,8 +432,8 @@ button.meal-card {
 }
 
 .type-picker__options {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -441,10 +441,10 @@ button.meal-card {
 .type-picker .type-option {
   margin: 0;
   position: relative;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   min-height: 44px;
-  padding: 8px 16px;
+  padding: 8px 32px 8px 12px;
   border: 3px solid var(--border-strong);
   border-radius: 999px;
   font-weight: 600;
@@ -464,8 +464,11 @@ button.meal-card {
 }
 
 .type-option svg {
-  flex: none;
-  margin-right: 6px;
+  /* Hors flux : la coche n'élargit pas la pastille, la grille ne bouge pas à la sélection. */
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .type-picker .type-option--checked {

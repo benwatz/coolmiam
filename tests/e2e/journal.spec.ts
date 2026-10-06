@@ -29,8 +29,8 @@ test('modifie tous les champs, y compris la date, puis supprime après confirmat
   await page.getByTestId('meal-card').click();
   await expect(page.getByRole('heading', { name: 'Modifier le repas' })).toBeVisible();
   await page.getByLabel('Date', { exact: true }).fill('2026-10-05');
-  await page.getByLabel('Heure').fill('13:10');
   await page.getByRole('radio', { name: 'Dîner', exact: true }).check();
+  await page.getByLabel('Heure').fill('13:10');
   await page.getByLabel('Description').fill('Œufs brouillés, crème fraîche « maison »');
   await page.getByLabel('Notes (symptômes, ressenti)').fill('Ballonnements légers');
   await page.getByRole('button', { name: 'Enregistrer' }).click();
@@ -56,6 +56,41 @@ test('modifie tous les champs, y compris la date, puis supprime après confirmat
   await page.getByRole('button', { name: 'Supprimer' }).click();
   await page.getByRole('alertdialog').getByRole('button', { name: 'Supprimer' }).click();
   await expect(page.getByText('Aucun repas saisi pour ce jour')).toBeVisible();
+});
+
+test('choisir un type propose son heure par défaut', async ({ page }) => {
+  await page.getByRole('button', { name: 'Ajouter un repas' }).click();
+  const time = page.getByLabel('Heure');
+  const expected = [
+    ['Petit-déjeuner', '07:00'],
+    ['Déjeuner', '12:00'],
+    ['Collation', '16:00'],
+    ['Dîner', '19:00'],
+  ];
+  for (const [type, hour] of expected) {
+    await page.getByRole('radio', { name: type, exact: true }).check();
+    await expect(time).toHaveValue(hour);
+  }
+  await page.getByRole('radio', { name: 'Autre', exact: true }).check();
+  await expect(time).toHaveValue(/^\d{2}:\d{2}$/);
+  await expect(time).not.toHaveValue('19:00');
+});
+
+test('les pastilles de type gardent leur position quand la sélection change', async ({ page }) => {
+  await page.getByRole('button', { name: 'Ajouter un repas' }).click();
+  const boxes = async () =>
+    page.locator('.type-option').evaluateAll((els) =>
+      els.map((el) => {
+        const r = el.getBoundingClientRect();
+        return [r.x, r.y, r.width, r.height].map(Math.round);
+      }),
+    );
+  await page.getByRole('radio', { name: 'Déjeuner', exact: true }).check();
+  const before = await boxes();
+  for (const type of ['Petit-déjeuner', 'Collation', 'Dîner', 'Autre']) {
+    await page.getByRole('radio', { name: type, exact: true }).check();
+    expect(await boxes()).toEqual(before);
+  }
 });
 
 test('la case Extra ajoute puis retire le contour rouge et la mention EXTRA', async ({ page }) => {

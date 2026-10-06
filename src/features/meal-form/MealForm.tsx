@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { useRepo } from '../../auth/session';
 import { textColorFor } from '../../domain/contrast';
-import { hasErrors, validateMeal, type MealErrors } from '../../domain/meals';
+import { defaultTimeForType, hasErrors, validateMeal, type MealErrors } from '../../domain/meals';
 import {
   DESCRIPTION_MAX,
   MEAL_TYPES,
   MEAL_TYPE_LABELS,
   NOTES_MAX,
   type MealInput,
+  type MealType,
   type TypeColors,
 } from '../../domain/types';
 import { ConfirmDialog } from '../../ui/ConfirmDialog';
@@ -47,6 +48,11 @@ export function MealForm({ mealId, initialValues, colors, onSaved, onCancel, onD
     valuesRef.current = next;
     saveDraft({ mealId, values: next });
     setValues(next);
+  };
+
+  const selectType = (type: MealType) => {
+    update('type', type);
+    update('time', defaultTimeForType(type));
   };
 
   const submit = async (e: Event) => {
@@ -145,7 +151,7 @@ export function MealForm({ mealId, initialValues, colors, onSaved, onCancel, onD
                       name="meal-type"
                       value={type}
                       checked={checked}
-                      onChange={() => update('type', type)}
+                      onChange={() => selectType(type)}
                     />
                     {checked && <IconCheck />}
                     <span>{MEAL_TYPE_LABELS[type]}</span>

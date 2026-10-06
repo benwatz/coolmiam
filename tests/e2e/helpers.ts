@@ -17,8 +17,9 @@ export interface MealData {
 export async function addMeal(page: Page, meal: MealData) {
   await page.getByRole('button', { name: 'Ajouter un repas' }).click();
   await expect(page.getByRole('heading', { name: 'Nouveau repas' })).toBeVisible();
-  await page.getByLabel('Heure').fill(meal.time);
+  // Le type d'abord : le choisir réinitialise l'heure à son défaut.
   await page.getByRole('radio', { name: meal.type, exact: true }).check();
+  await page.getByLabel('Heure').fill(meal.time);
   await page.getByLabel('Description').fill(meal.description);
   if (meal.notes) await page.getByLabel('Notes (symptômes, ressenti)').fill(meal.notes);
   if (meal.extra) await page.getByRole('checkbox', { name: 'Extra' }).check();

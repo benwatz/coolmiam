@@ -1,5 +1,5 @@
 import { DESCRIPTION_MAX, NOTES_MAX, isMealType, type Meal, type MealInput, type MealType } from './types';
-import { isValidDateStr, isValidTimeStr } from './dates';
+import { isValidDateStr, isValidTimeStr, nowTimeStr } from './dates';
 
 /** Tri d'affichage : date croissante, puis heure croissante, puis createdAt croissant. */
 export function compareMeals(a: Meal, b: Meal): number {
@@ -85,4 +85,20 @@ export function suggestMealType(time: string): MealType {
   if (minutes >= 15 * 60 && minutes < 18 * 60) return 'collation';
   if (minutes >= 18 * 60 + 30 && minutes < 22 * 60 + 30) return 'diner';
   return 'autre';
+}
+
+/** Heure proposée quand on choisit un type de repas ; "autre" reprend l'heure actuelle. */
+export function defaultTimeForType(type: MealType, now: () => string = nowTimeStr): string {
+  switch (type) {
+    case 'petit_dejeuner':
+      return '07:00';
+    case 'dejeuner':
+      return '12:00';
+    case 'collation':
+      return '16:00';
+    case 'diner':
+      return '19:00';
+    default:
+      return now();
+  }
 }

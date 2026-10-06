@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { exportFileName, generateId, sortMeals, suggestMealType, validateMeal } from '../../src/domain/meals';
+import { defaultTimeForType, exportFileName, generateId, sortMeals, suggestMealType, validateMeal } from '../../src/domain/meals';
 import { normalizeTypeColors, DEFAULT_TYPE_COLORS, type MealInput } from '../../src/domain/types';
 import { makeMeal } from './helpers';
 
@@ -76,6 +76,14 @@ describe('divers', () => {
     expect(suggestMealType('16:00')).toBe('collation');
     expect(suggestMealType('20:00')).toBe('diner');
     expect(suggestMealType('02:00')).toBe('autre');
+  });
+
+  it('propose une heure par défaut selon le type choisi', () => {
+    expect(defaultTimeForType('petit_dejeuner')).toBe('07:00');
+    expect(defaultTimeForType('dejeuner')).toBe('12:00');
+    expect(defaultTimeForType('collation')).toBe('16:00');
+    expect(defaultTimeForType('diner')).toBe('19:00');
+    expect(defaultTimeForType('autre', () => '14:42')).toBe('14:42');
   });
 
   it('complète les couleurs stockées avec les valeurs par défaut', () => {
