@@ -131,7 +131,7 @@ export function AuthGate({ children }: { children: ComponentChildren }) {
     );
   }
   return (
-    <SessionContext.Provider key={status.user.uid} value={{ user: status.user, repo: repo!, signOut }}>
+    <SessionContext.Provider key={status.user.uid} value={{ user: status.user, repo: repo!, admin: backend!.admin, signOut }}>
       {children}
     </SessionContext.Provider>
   );

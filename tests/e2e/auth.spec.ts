@@ -36,3 +36,31 @@ test('la déconnexion depuis les Réglages ramène à l\'écran de connexion', a
   await openDay(page);
   await expect(page.getByTestId('meal-card')).toContainText('Soupe');
 });
+
+test('les Réglages n\'affichent l\'administration qu\'aux administrateurs', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Réglages' }).click();
+  await expect(page.getByRole('heading', { name: 'Compte' })).toBeVisible();
+  await expect(page.getByTestId('admin-panel')).toBeHidden();
+});
+
+test('un administrateur approuve, refuse et révoque des demandes', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => localStorage.setItem('coolmiam.fakeAdmin', '1'));
+  await page.reload();
+  await page.getByRole('button', { name: 'Réglages' }).click();
+
+  const panel = page.getByTestId('admin-panel');
+  await expect(panel.getByTestId('admin-pending')).toHaveCount(1);
+  await expect(panel.getByTestId('admin-approved')).toHaveCount(1);
+
+  await panel.getByRole('button', { name: 'Approuver alice@example.com' }).click();
+  await expect(panel.getByTestId('admin-pending')).toHaveCount(0);
+  await expect(panel.getByTestId('admin-approved')).toHaveCount(2);
+
+  await panel.getByRole('button', { name: 'Révoquer bob@example.com' }).click();
+  await expect(panel.getByTestId('admin-pending')).toHaveCount(1);
+  await panel.getByRole('button', { name: 'Refuser bob@example.com' }).click();
+  await expect(panel.getByTestId('admin-pending')).toHaveCount(0);
+  await expect(panel.getByText('Aucune demande en attente.')).toBeVisible();
+});

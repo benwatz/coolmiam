@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'preact/hooks';
 import { useSession } from '../../auth/session';
+import { useLiveQuery } from '../../db/useLiveQuery';
 import { textColorFor } from '../../domain/contrast';
+import { AdminPanel } from './AdminPanel';
 import { DEFAULT_TYPE_COLORS, MEAL_TYPES, MEAL_TYPE_LABELS, type MealType, type TypeColors } from '../../domain/types';
 
 interface Props {
@@ -8,7 +10,8 @@ interface Props {
 }
 
 export function SettingsScreen({ colors }: Props) {
-  const { repo, user, signOut } = useSession();
+  const { repo, admin, user, signOut } = useSession();
+  const isAdmin = useLiveQuery<boolean>((cb) => admin.watchIsAdmin(user.uid, cb), [admin, user.uid]);
   const [persisted, setPersisted] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -58,6 +61,8 @@ export function SettingsScreen({ colors }: Props) {
         <button type="button" class="btn btn--block" onClick={() => void signOut()}>
           Se déconnecter
         </button>
+
+        {isAdmin && <AdminPanel />}
 
         <h3 class="section-title">Informations</h3>
         <dl class="info-list">

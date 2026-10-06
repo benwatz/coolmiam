@@ -33,7 +33,29 @@ export interface Store {
   setSetting(key: string, value: unknown): Promise<void>;
 }
 
+/** Un compte ayant demandé l'accès (ou déjà approuvé). */
+export interface AccessRequest {
+  uid: string;
+  email: string;
+  name: string;
+  /** Date ISO de la demande, absente tant que le serveur ne l'a pas horodatée. */
+  requestedAt: string | null;
+  approved: boolean;
+}
+
+/** Gestion de la liste blanche, réservée aux administrateurs (documents admins/{uid}). */
+export interface AdminService {
+  watchIsAdmin(uid: string, callback: (isAdmin: boolean) => void): Unsubscribe;
+  watchAccessList(callback: (items: AccessRequest[]) => void): Unsubscribe;
+  approve(request: AccessRequest): Promise<void>;
+  /** Retire l'accès d'un compte approuvé (ses données sont conservées mais redeviennent illisibles). */
+  revoke(uid: string): Promise<void>;
+  /** Supprime une demande en attente ; elle réapparaît si le compte se reconnecte. */
+  reject(uid: string): Promise<void>;
+}
+
 export interface Backend {
   auth: AuthService;
+  admin: AdminService;
   createStore(uid: string): Store;
 }

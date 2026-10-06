@@ -1,11 +1,12 @@
 import { createContext } from 'preact';
 import { useContext } from 'preact/hooks';
-import type { AuthUser } from '../backend/types';
+import type { AdminService, AuthUser } from '../backend/types';
 import type { Repository } from '../db/repository';
 
 export interface Session {
   user: AuthUser;
   repo: Repository;
+  admin: AdminService;
   signOut: () => Promise<void>;
 }
 

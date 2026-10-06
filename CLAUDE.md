@@ -25,6 +25,12 @@ commandes (`npm test`, `npm run test:e2e`, `npm run build`).
   `allowedUsers/{uid}` ; sinon écran "Accès en attente" et demande dans `accessRequests/{uid}`.
   Règles dans `firestore.rules` (publiées à la main dans la console Firebase). Un document absent du
   cache local n'est pas une réponse (`metadata.fromCache`) : on reste en "Vérification".
+- **Administration des accès** (`AdminPanel`, Réglages) : visible si `admins/{uid}` existe (créé à la
+  main dans la console, aucun UID en dur dans le dépôt). `AdminService` approuve (écrit
+  `allowedUsers/{uid}` avec email et nom), révoque (supprime ce document) et refuse (supprime la
+  demande ; elle réapparaît si le compte se reconnecte). Les règles donnent à un administrateur la
+  lecture de `accessRequests` et la lecture/écriture de `allowedUsers`. L'administrateur ne peut pas se
+  révoquer lui-même depuis l'interface.
 - **Pas de migration** des anciens repas IndexedDB (saisis avant octobre 2026) : ils restent dans le
   navigateur mais ne sont plus lus.
 - **Couleurs non stockées par repas** : table `settings`, clé `typeColors`, normalisée par

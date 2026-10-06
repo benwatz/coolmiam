@@ -13,12 +13,14 @@ import {
   query,
   serverTimestamp,
   setDoc,
+  Timestamp,
   where,
   type Firestore,
+  type QueryDocumentSnapshot,
   type QuerySnapshot,
 } from 'firebase/firestore';
 import type { Meal } from '../domain/types';
-import type { AuthService, Backend, Store } from './types';
+import type { AccessRequest, AdminService, AuthService, Backend, Store } from './types';
 
 // Configuration web Firebase : destinée à être embarquée dans le code client, ce n'est pas un secret.
 // La vraie barrière d'accès, ce sont les règles de sécurité Firestore (`firestore.rules`).
@@ -106,11 +108,73 @@ function createAuth(db: Firestore): AuthService {
   };
 }
 
+function createAdmin(db: Firestore): AdminService {
+  const requests = collection(db, 'accessRequests');
+  const allowed = collection(db, 'allowedUsers');
+  return {
+    // Règles refusant la lecture (compte non admin) : pas administrateur.
+    watchIsAdmin: (uid, callback) =>
+      onSnapshot(doc(db, 'admins', uid), (s) => callback(s.exists()), () => callback(false)),
+
+    watchAccessList(callback) {
+      let requestDocs: QueryDocumentSnapshot[] | null = null;
+      let allowedDocs: QueryDocumentSnapshot[] | null = null;
+      const emit = () => {
+        // Attend les deux collections avant d'afficher, pour ne pas montrer d'approuvé comme "en attente".
+        if (!requestDocs || !allowedDocs) return;
+        const approvedIds = new Set(allowedDocs.map((d) => d.id));
+        const items = new Map<string, AccessRequest>();
+        for (const d of requestDocs) {
+          const data = d.data();
+          const at = data.requestedAt instanceof Timestamp ? data.requestedAt.toDate().toISOString() : null;
+          items.set(d.id, {
+            uid: d.id,
+            email: String(data.email ?? ''),
+            name: String(data.name ?? ''),
+            requestedAt: at,
+            approved: approvedIds.has(d.id),
+          });
+        }
+        // Compte approuvé à la main dans la console, sans demande enregistrée.
+        for (const d of allowedDocs) {
+          if (!items.has(d.id)) {
+            const data = d.data();
+            items.set(d.id, {
+              uid: d.id,
+              email: String(data.email ?? ''),
+              name: String(data.name ?? ''),
+              requestedAt: null,
+              approved: true,
+            });
+          }
+        }
+        callback([...items.values()]);
+      };
+      const stopRequests = onSnapshot(requests, (s) => ((requestDocs = s.docs), emit()), logError);
+      const stopAllowed = onSnapshot(allowed, (s) => ((allowedDocs = s.docs), emit()), logError);
+      return () => {
+        stopRequests();
+        stopAllowed();
+      };
+    },
+
+    async approve(request) {
+      await setDoc(doc(allowed, request.uid), {
+        email: request.email,
+        name: request.name,
+        approvedAt: serverTimestamp(),
+      });
+    },
+    revoke: (uid) => deleteDoc(doc(allowed, uid)),
+    reject: (uid) => deleteDoc(doc(requests, uid)),
+  };
+}
+
 export function createFirebaseBackend(): Backend {
   const app = initializeApp(firebaseConfig);
   // Cache persistant (IndexedDB) : lecture et saisie hors ligne, synchronisées à la reconnexion.
   const db = initializeFirestore(app, {
     localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
   });
-  return { auth: createAuth(db), createStore: (uid) => createStore(db, uid) };
+  return { auth: createAuth(db), admin: createAdmin(db), createStore: (uid) => createStore(db, uid) };
 }

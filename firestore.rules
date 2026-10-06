@@ -2,7 +2,8 @@ rules_version = '2';
 
 // À publier dans la console Firebase : Firestore Database > Règles.
 // Liste blanche : seuls les comptes dont l'UID a un document allowedUsers/{uid} accèdent à leurs données.
-// Ce document se crée uniquement à la main dans la console (les clients ne peuvent pas y écrire).
+// Les documents admins/{uid} se créent uniquement à la main dans la console ; un administrateur gère
+// ensuite allowedUsers et accessRequests depuis Réglages > Administration des accès.
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -10,21 +11,32 @@ service cloud.firestore {
       return request.auth != null && request.auth.uid == uid;
     }
 
+    function isAdmin() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
     function isApproved() {
       return exists(/databases/$(database)/documents/allowedUsers/$(request.auth.uid));
     }
 
-    // Un compte peut seulement vérifier sa propre approbation.
-    match /allowedUsers/{uid} {
+    // Administrateurs : documents créés à la main dans la console (aucun client ne peut y écrire).
+    match /admins/{uid} {
       allow read: if isOwner(uid);
       allow write: if false;
     }
 
-    // Demande d'accès : un compte connecté écrit la sienne, que l'administrateur lit dans la console.
+    // Liste blanche : un compte vérifie sa propre approbation ; un administrateur approuve et révoque.
+    match /allowedUsers/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // Demande d'accès : un compte connecté écrit la sienne ; un administrateur les lit et les supprime.
     match /accessRequests/{uid} {
       allow create, update: if isOwner(uid)
         && request.resource.data.keys().hasOnly(['email', 'name', 'requestedAt']);
-      allow read, delete: if false;
+      allow read, delete: if isAdmin();
     }
 
     // Repas et réglages : privés, par utilisateur approuvé.

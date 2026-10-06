@@ -710,3 +710,58 @@ button.meal-card {
 .gate .notice {
   text-align: left;
 }
+
+/* ---------- Administration des accès ---------- */
+
+.admin-subtitle {
+  margin: 16px 0 8px;
+  font-size: 1rem;
+}
+
+.admin-empty {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.admin-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  padding: 12px;
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.admin-item__identity {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.admin-item__identity span {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.admin-item__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-self {
+  color: var(--text-muted);
+  font-weight: 600;
+}

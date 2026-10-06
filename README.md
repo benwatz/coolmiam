@@ -63,9 +63,11 @@ tests/e2e/        tests Playwright
 
 - Données : `users/{uid}/meals/{id}` et `users/{uid}/settings/typeColors`.
 - Accès : liste blanche. Règles dans `firestore.rules` (à publier dans la console : Firestore
-  Database > Règles). Un compte approuvé a un document `allowedUsers/{uid}`, créé à la main dans la
-  console. Un compte inconnu qui se connecte écrit une demande dans `accessRequests/{uid}` (email,
-  nom) : copier son UID vers `allowedUsers` pour l'approuver (le document peut être vide).
+  Database > Règles). Un compte approuvé a un document `allowedUsers/{uid}`. Un compte inconnu qui
+  se connecte écrit une demande dans `accessRequests/{uid}` (email, nom).
+- Administrateur : document `admins/{uid}` créé à la main dans la console (champ quelconque, ex.
+  `ok` = true). Il voit Réglages > Administration des accès : approuver ou refuser les demandes,
+  révoquer un compte approuvé. Seul le premier administrateur se crée à la main.
 - Authentication > Settings > Domaines autorisés : `localhost` et le domaine GitHub Pages.
 - Les tests E2E utilisent un faux backend (build `--mode e2e`, `npm run build:e2e`), sans réseau.
 
