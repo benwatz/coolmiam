@@ -465,7 +465,9 @@ button.meal-card {
 }
 
 /* Extra : vraie case à cocher, hors de la grille des types, cumulable avec n'importe quel type. */
-.extra-check {
+.type-picker .extra-check {
+  margin: 0;
+  padding: 0 0 0 12px;
   display: flex;
   align-items: center;
   gap: 12px;
