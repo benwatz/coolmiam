@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'preact/hooks';
 import { useSession } from '../../auth/session';
 import { useLiveQuery } from '../../db/useLiveQuery';
 import { textColorFor } from '../../domain/contrast';
@@ -14,11 +13,6 @@ export function SettingsScreen({ colors }: Props) {
   const { repo, admin, user, signOut } = useSession();
   const adminStatus = useLiveQuery<AdminStatus>((cb) => admin.watchAdminStatus(user.uid, cb), [admin, user.uid]);
   const isAdmin = adminStatus?.isAdmin === true;
-  const [persisted, setPersisted] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    navigator.storage?.persisted?.().then(setPersisted).catch(() => setPersisted(null));
-  }, []);
 
   const setColor = (type: MealType, value: string) => {
     void repo.setTypeColors({ ...colors, [type]: value });
@@ -70,22 +64,6 @@ export function SettingsScreen({ colors }: Props) {
         <dl class="info-list">
           <dt>Version</dt>
           <dd data-testid="app-version">{__APP_VERSION__}</dd>
-          <dt>Données</dt>
-          <dd>
-            Vos repas sont enregistrés dans votre espace privé Firebase (Google), lié à votre compte, et conservés sur
-            cet appareil pour fonctionner hors ligne. Rien d'autre n'est transmis, sauf lorsque vous partagez vous-même
-            un PDF.
-          </dd>
-          {persisted !== null && (
-            <>
-              <dt>Stockage persistant</dt>
-              <dd>
-                {persisted
-                  ? 'Activé : le navigateur ne doit pas effacer les données automatiquement.'
-                  : "Non accordé par le navigateur : les données pourraient être effacées en cas de manque d'espace."}
-              </dd>
-            </>
-          )}
         </dl>
       </div>
     </section>
