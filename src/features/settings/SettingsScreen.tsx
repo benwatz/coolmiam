@@ -63,23 +63,6 @@ export function SettingsScreen({ colors }: Props) {
         <button type="button" class="btn btn--block" onClick={() => void signOut()}>
           Se déconnecter
         </button>
-        <details class="diagnostic" data-testid="diagnostic">
-          <summary>Diagnostic</summary>
-          <dl class="info-list">
-            <dt>Identifiant (UID)</dt>
-            <dd class="diagnostic__value">{user.uid}</dd>
-            <dt>Administration</dt>
-            <dd>
-              {adminStatus === undefined
-                ? 'Vérification en cours…'
-                : adminStatus.error
-                  ? `Lecture de admins/${user.uid} refusée ou impossible (${adminStatus.error}).`
-                  : adminStatus.isAdmin
-                    ? 'Administrateur : le document admins/<UID> existe.'
-                    : 'Non administrateur : aucun document admins/<UID> pour cet identifiant.'}
-            </dd>
-          </dl>
-        </details>
 
         {isAdmin && <AdminPanel />}
 
