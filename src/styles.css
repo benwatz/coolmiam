@@ -1,0 +1,657 @@
+:root {
+  --bg: #fffbf2;
+  --surface: #ffffff;
+  --text: #1f2421;
+  --text-muted: #4f5a54;
+  --primary: #2e7d5b;
+  --primary-text: #ffffff;
+  --border: #cfd6d1;
+  --danger: #c62828;
+  --extra: #d32f2f;
+  --focus: #1565c0;
+  --radius: 12px;
+  --tabbar-height: 64px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  color-scheme: light;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-text-size-adjust: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+}
+
+body {
+  overscroll-behavior-y: none;
+}
+
+#app {
+  height: 100%;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------- Structure ---------- */
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  min-height: 100%;
+  padding-left: var(--safe-left);
+  padding-right: var(--safe-right);
+}
+
+.app-header {
+  flex: none;
+  padding: calc(8px + var(--safe-top)) 16px 8px;
+  background: var(--primary);
+  color: var(--primary-text);
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.app-main {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+}
+
+.screen__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px 16px 96px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.screen--form .screen__scroll {
+  padding-bottom: 24px;
+}
+
+.screen__title {
+  margin: 0 0 16px;
+  font-size: 1.3rem;
+}
+
+.section-title {
+  margin: 24px 0 8px;
+  font-size: 1.05rem;
+}
+
+/* ---------- Boutons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 10px 18px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn--primary {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-text);
+}
+
+.btn--danger {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #ffffff;
+}
+
+.btn--block {
+  display: flex;
+  width: 100%;
+  margin-top: 16px;
+}
+
+.btn--small {
+  padding: 6px 12px;
+  font-size: 0.9rem;
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.icon-btn:active {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.fab {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  width: 60px;
+  height: 60px;
+  border: none;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--primary-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+}
+
+/* ---------- Bandeau de date ---------- */
+
+.datebar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 8px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.datebar__picker {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.datebar__label {
+  /* Sur écran étroit (360 px), la date longue passe sur deux lignes plutôt que d'être tronquée. */
+  font-size: 0.95rem;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.datebar__picker svg {
+  flex: none;
+}
+
+.datebar__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  /* Indispensable sur iOS pour que le champ reçoive l'appui. */
+  font-size: 16px;
+}
+
+.datebar__picker:focus-within {
+  outline: 3px solid var(--focus);
+  border-radius: 8px;
+}
+
+.datebar__today {
+  flex: none;
+}
+
+/* ---------- Cartes repas ---------- */
+
+.meal-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.meal-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 3px solid transparent;
+  border-radius: var(--radius);
+  font: inherit;
+  text-align: left;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+button.meal-card {
+  cursor: pointer;
+}
+
+.meal-card--extra {
+  border-color: var(--extra);
+}
+
+.meal-card__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+}
+
+.meal-card__type {
+  flex: 1;
+}
+
+.meal-card__extra {
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--extra);
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.meal-card__desc,
+.meal-card__notes {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.meal-card__notes {
+  font-style: italic;
+}
+
+.empty-state {
+  margin-top: 48px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.empty-state p {
+  margin: 4px 0;
+}
+
+.empty-state p:first-child {
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* ---------- Formulaires ---------- */
+
+.meal-form {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.form-preview {
+  margin-bottom: 16px;
+}
+
+.form-preview__label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.field-row {
+  display: flex;
+  gap: 12px;
+}
+
+.field-row .field {
+  flex: 1;
+  min-width: 0;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 0 16px;
+  padding: 0;
+  border: none;
+}
+
+.field label,
+.field legend {
+  font-weight: 600;
+  padding: 0;
+  margin-bottom: 4px;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 16px;
+}
+
+.field textarea {
+  resize: vertical;
+}
+
+.field input[aria-invalid='true'],
+.field textarea[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+
+.field__counter {
+  align-self: flex-end;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.field__error {
+  margin: 4px 0 0;
+  color: var(--danger);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.type-picker__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Sélecteur renforcé : prime sur ".field label" (padding et marge nuls). */
+.type-picker .type-option {
+  margin: 0;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 3px solid transparent;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.type-option input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.type-option span {
+  white-space: nowrap;
+}
+
+.type-option svg {
+  flex: none;
+  margin-right: 6px;
+}
+
+.type-picker .type-option--checked {
+  border-color: var(--text);
+}
+
+.type-option:focus-within {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.checkbox input {
+  width: 24px;
+  height: 24px;
+  accent-color: var(--extra);
+}
+
+.form-delete {
+  margin-top: 24px;
+}
+
+.form-actions {
+  flex: none;
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px calc(12px + var(--safe-bottom));
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+
+.form-actions .btn {
+  flex: 1;
+}
+
+/* ---------- Boîte de dialogue ---------- */
+
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.dialog {
+  width: 100%;
+  max-width: 360px;
+  padding: 20px;
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.dialog h2 {
+  margin: 0 0 8px;
+  font-size: 1.2rem;
+}
+
+.dialog p {
+  margin: 0 0 20px;
+}
+
+.dialog__actions {
+  display: flex;
+  gap: 12px;
+}
+
+.dialog__actions .btn {
+  flex: 1;
+}
+
+/* ---------- Export ---------- */
+
+.export-count {
+  margin: 0 0 8px;
+}
+
+.export-result {
+  margin-top: 20px;
+  padding: 16px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.export-result p {
+  margin: 0 0 12px;
+  overflow-wrap: anywhere;
+}
+
+.export-result__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.export-result__actions .btn {
+  flex: 1;
+}
+
+.notice {
+  margin-top: 16px;
+  padding: 12px;
+  border-left: 4px solid var(--primary);
+  border-radius: 6px;
+  background: #e8f3ee;
+}
+
+/* ---------- Réglages ---------- */
+
+.color-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.color-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.color-row__preview {
+  flex: 1;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.color-row__input {
+  flex: none;
+  width: 56px;
+  height: 44px;
+  padding: 2px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.info-list {
+  margin: 0;
+}
+
+.info-list dt {
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.info-list dd {
+  margin: 2px 0 0;
+  color: var(--text-muted);
+}
+
+/* ---------- Barre d'onglets ---------- */
+
+.tabbar {
+  flex: none;
+  display: flex;
+  min-height: var(--tabbar-height);
+  padding-bottom: var(--safe-bottom);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+
+.tabbar__item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 56px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tabbar__item--active {
+  color: var(--primary);
+}
+
+.tabbar__item--active svg {
+  stroke-width: 2.5;
+}

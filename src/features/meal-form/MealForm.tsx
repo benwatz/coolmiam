@@ -1,0 +1,223 @@
+import { useEffect, useState } from 'preact/hooks';
+import { repo } from '../../db';
+import { textColorFor } from '../../domain/contrast';
+import { hasErrors, validateMeal, type MealErrors } from '../../domain/meals';
+import {
+  DESCRIPTION_MAX,
+  MEAL_TYPES,
+  MEAL_TYPE_LABELS,
+  NOTES_MAX,
+  type MealInput,
+  type TypeColors,
+} from '../../domain/types';
+import { ConfirmDialog } from '../../ui/ConfirmDialog';
+import { MealCard } from '../../ui/MealCard';
+import { IconCheck } from '../../ui/icons';
+import { saveDraft } from './draft';
+
+interface Props {
+  mealId: string | null;
+  initialValues: MealInput;
+  colors: TypeColors;
+  onSaved: (date: string) => void;
+  onCancel: () => void;
+  onDeleted: () => void;
+}
+
+export function MealForm({ mealId, initialValues, colors, onSaved, onCancel, onDeleted }: Props) {
+  const [values, setValues] = useState<MealInput>(initialValues);
+  const [errors, setErrors] = useState<MealErrors>({});
+  const [submitted, setSubmitted] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const isEdit = mealId !== null;
+
+  useEffect(() => {
+    saveDraft({ mealId, values });
+    if (submitted) setErrors(validateMeal(values));
+  }, [values]);
+
+  const update = <K extends keyof MealInput>(key: K, value: MealInput[K]) =>
+    setValues((prev) => ({ ...prev, [key]: value }));
+
+  const submit = async (e: Event) => {
+    e.preventDefault();
+    setSubmitted(true);
+    const found = validateMeal(values);
+    setErrors(found);
+    if (hasErrors(found)) {
+      const first = (['date', 'time', 'type', 'description', 'notes'] as const).find((k) => found[k]);
+      if (first) document.getElementById(`field-${first}`)?.focus();
+      return;
+    }
+    setSaving(true);
+    setSaveError(null);
+    try {
+      if (isEdit) await repo.updateMeal(mealId, values);
+      else await repo.addMeal(values);
+      onSaved(values.date);
+    } catch (err) {
+      console.error(err);
+      setSaveError("L'enregistrement a échoué. Veuillez réessayer.");
+      setSaving(false);
+    }
+  };
+
+  const doDelete = async () => {
+    if (!mealId) return;
+    await repo.deleteMeal(mealId);
+    setConfirmDelete(false);
+    onDeleted();
+  };
+
+  const errorProps = (key: keyof MealInput) =>
+    errors[key] ? { 'aria-invalid': true, 'aria-describedby': `error-${key}` } : {};
+  const errorMsg = (key: keyof MealInput) =>
+    errors[key] ? (
+      <p class="field__error" id={`error-${key}`} role="alert">
+        {errors[key]}
+      </p>
+    ) : null;
+
+  return (
+    <section class="screen screen--form" aria-labelledby="form-title">
+      <form class="meal-form" onSubmit={submit} noValidate>
+        <div class="screen__scroll">
+          <h2 id="form-title" class="screen__title">
+            {isEdit ? 'Modifier le repas' : 'Nouveau repas'}
+          </h2>
+
+          <div class="form-preview" aria-hidden="true">
+            <span class="form-preview__label">Aperçu</span>
+            <MealCard meal={values} colors={colors} preview />
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="field-date">Date</label>
+              <input
+                id="field-date"
+                type="date"
+                required
+                value={values.date}
+                onInput={(e) => update('date', e.currentTarget.value)}
+                {...errorProps('date')}
+              />
+              {errorMsg('date')}
+            </div>
+            <div class="field">
+              <label for="field-time">Heure</label>
+              <input
+                id="field-time"
+                type="time"
+                required
+                value={values.time}
+                onInput={(e) => update('time', e.currentTarget.value)}
+                {...errorProps('time')}
+              />
+              {errorMsg('time')}
+            </div>
+          </div>
+
+          <fieldset class="field type-picker" id="field-type" tabIndex={-1}>
+            <legend>Type de repas</legend>
+            <div class="type-picker__options">
+              {MEAL_TYPES.map((type) => {
+                const bg = colors[type];
+                const checked = values.type === type;
+                return (
+                  <label
+                    key={type}
+                    class={`type-option${checked ? ' type-option--checked' : ''}`}
+                    style={{ backgroundColor: bg, color: textColorFor(bg) }}
+                  >
+                    <input
+                      type="radio"
+                      name="meal-type"
+                      value={type}
+                      checked={checked}
+                      onChange={() => update('type', type)}
+                    />
+                    {checked && <IconCheck />}
+                    <span>{MEAL_TYPE_LABELS[type]}</span>
+                  </label>
+                );
+              })}
+            </div>
+            {errorMsg('type')}
+          </fieldset>
+
+          <div class="field">
+            <label for="field-description">Description</label>
+            <textarea
+              id="field-description"
+              rows={3}
+              maxLength={DESCRIPTION_MAX}
+              required
+              value={values.description}
+              onInput={(e) => update('description', e.currentTarget.value)}
+              {...errorProps('description')}
+            />
+            <span class="field__counter">
+              {values.description.length}/{DESCRIPTION_MAX}
+            </span>
+            {errorMsg('description')}
+          </div>
+
+          <div class="field">
+            <label for="field-notes">Notes (symptômes, ressenti)</label>
+            <textarea
+              id="field-notes"
+              rows={3}
+              maxLength={NOTES_MAX}
+              value={values.notes}
+              onInput={(e) => update('notes', e.currentTarget.value)}
+              {...errorProps('notes')}
+            />
+            <span class="field__counter">
+              {values.notes.length}/{NOTES_MAX}
+            </span>
+            {errorMsg('notes')}
+          </div>
+
+          <label class="checkbox">
+            <input type="checkbox" checked={values.extra} onChange={(e) => update('extra', e.currentTarget.checked)} />
+            <span>Extra</span>
+          </label>
+
+          {saveError && (
+            <p class="field__error" role="alert">
+              {saveError}
+            </p>
+          )}
+
+          {isEdit && (
+            <button type="button" class="btn btn--danger btn--block form-delete" onClick={() => setConfirmDelete(true)}>
+              Supprimer
+            </button>
+          )}
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn" onClick={onCancel}>
+            Annuler
+          </button>
+          <button type="submit" class="btn btn--primary" disabled={saving}>
+            Enregistrer
+          </button>
+        </div>
+      </form>
+
+      {confirmDelete && (
+        <ConfirmDialog
+          title="Supprimer ce repas ?"
+          message="Cette action est définitive."
+          confirmLabel="Supprimer"
+          onConfirm={doDelete}
+          onCancel={() => setConfirmDelete(false)}
+        />
+      )}
+    </section>
+  );
+}

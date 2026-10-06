@@ -1,0 +1,31 @@
+{
+  "name": "coolmiam",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Coolmiam - PWA de journal alimentaire",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --port 4173 --strictPort",
+    "test": "vitest run",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "icons": "node scripts/generate-icons.mjs"
+  },
+  "dependencies": {
+    "dexie": "^4.4.6",
+    "jspdf": "^4.2.1",
+    "preact": "^11.0.0"
+  },
+  "devDependencies": {
+    "@expo-google-fonts/roboto": "^0.4.3",
+    "@playwright/test": "^1.63.0",
+    "@preact/preset-vite": "^2.10.6",
+    "fake-indexeddb": "^6.2.5",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.3",
+    "vite-plugin-pwa": "^2.0.0",
+    "vitest": "^5.0.3"
+  }
+}
