@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { useRepo } from '../../auth/session';
 import { textColorFor } from '../../domain/contrast';
 import { hasErrors, validateMeal, type MealErrors } from '../../domain/meals';
@@ -27,6 +27,7 @@ interface Props {
 export function MealForm({ mealId, initialValues, colors, onSaved, onCancel, onDeleted }: Props) {
   const repo = useRepo();
   const [values, setValues] = useState<MealInput>(initialValues);
+  const valuesRef = useRef(initialValues);
   const [errors, setErrors] = useState<MealErrors>({});
   const [submitted, setSubmitted] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -39,8 +40,14 @@ export function MealForm({ mealId, initialValues, colors, onSaved, onCancel, onD
     if (submitted) setErrors(validateMeal(values));
   }, [values]);
 
-  const update = <K extends keyof MealInput>(key: K, value: MealInput[K]) =>
-    setValues((prev) => ({ ...prev, [key]: value }));
+  // Le brouillon est enregistré tout de suite (pas seulement dans l'effet, exécuté après le rendu) :
+  // un rechargement ou l'arrêt de l'application juste après la saisie ne doit pas la perdre.
+  const update = <K extends keyof MealInput>(key: K, value: MealInput[K]) => {
+    const next = { ...valuesRef.current, [key]: value };
+    valuesRef.current = next;
+    saveDraft({ mealId, values: next });
+    setValues(next);
+  };
 
   const submit = async (e: Event) => {
     e.preventDefault();
