@@ -464,24 +464,18 @@ button.meal-card {
   border-color: var(--text);
 }
 
+/* Extra : même gabarit que les types, contour rouge une fois coché (comme la carte du Journal). */
+.type-picker .type-option--extra {
+  background: transparent;
+}
+
+.type-picker .type-option--extra.type-option--checked {
+  border-color: var(--extra);
+}
+
 .type-option:focus-within {
   outline: 3px solid var(--focus);
   outline-offset: 2px;
-}
-
-.checkbox {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-height: 44px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.checkbox input {
-  width: 24px;
-  height: 24px;
-  accent-color: var(--extra);
 }
 
 .form-delete {
