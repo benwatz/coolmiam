@@ -32,7 +32,6 @@ test('modifie tous les champs, y compris la date, puis supprime après confirmat
   await page.getByRole('radio', { name: 'Dîner', exact: true }).check();
   await page.getByLabel('Heure').fill('13:10');
   await page.getByLabel('Description').fill('Œufs brouillés, crème fraîche « maison »');
-  await page.getByLabel('Notes (symptômes, ressenti)').fill('Ballonnements légers');
   await page.getByRole('button', { name: 'Enregistrer' }).click();
 
   // Le journal suit la nouvelle date du repas.
@@ -41,7 +40,6 @@ test('modifie tous les champs, y compris la date, puis supprime après confirmat
   await expect(card).toContainText('13:10');
   await expect(card).toContainText('Dîner');
   await expect(card).toContainText('Œufs brouillés, crème fraîche « maison »');
-  await expect(card).toContainText('Notes : Ballonnements légers');
 
   await openDay(page, DAY);
   await expect(page.getByTestId('meal-card')).toHaveCount(0);
@@ -101,10 +99,7 @@ test('la case Extra ajoute puis retire le contour rouge et la mention EXTRA', as
   await expect(card).toHaveCSS('border-top-width', '3px');
 
   await card.click();
-  // L'aperçu reflète la case en direct.
-  await expect(page.getByTestId('meal-preview')).toContainText('EXTRA');
   await page.getByRole('checkbox', { name: 'Extra' }).uncheck();
-  await expect(page.getByTestId('meal-preview')).not.toContainText('EXTRA');
   await page.getByRole('button', { name: 'Enregistrer' }).click();
   await expect(card).not.toContainText('EXTRA');
   await expect(card).toHaveCSS('border-top-color', 'rgba(0, 0, 0, 0)');

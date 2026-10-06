@@ -6,13 +6,11 @@ import {
   DESCRIPTION_MAX,
   MEAL_TYPES,
   MEAL_TYPE_LABELS,
-  NOTES_MAX,
   type MealInput,
   type MealType,
   type TypeColors,
 } from '../../domain/types';
 import { ConfirmDialog } from '../../ui/ConfirmDialog';
-import { MealCard } from '../../ui/MealCard';
 import { IconCheck } from '../../ui/icons';
 import { saveDraft } from './draft';
 
@@ -61,7 +59,7 @@ export function MealForm({ mealId, initialValues, colors, onSaved, onCancel, onD
     const found = validateMeal(values);
     setErrors(found);
     if (hasErrors(found)) {
-      const first = (['date', 'time', 'type', 'description', 'notes'] as const).find((k) => found[k]);
+      const first = (['date', 'time', 'type', 'description'] as const).find((k) => found[k]);
       if (first) document.getElementById(`field-${first}`)?.focus();
       return;
     }
@@ -101,11 +99,6 @@ export function MealForm({ mealId, initialValues, colors, onSaved, onCancel, onD
           <h2 id="form-title" class="screen__title">
             {isEdit ? 'Modifier le repas' : 'Nouveau repas'}
           </h2>
-
-          <div class="form-preview" aria-hidden="true">
-            <span class="form-preview__label">Aperçu</span>
-            <MealCard meal={values} colors={colors} preview />
-          </div>
 
           <div class="field-row">
             <div class="field">
@@ -177,22 +170,6 @@ export function MealForm({ mealId, initialValues, colors, onSaved, onCancel, onD
               {values.description.length}/{DESCRIPTION_MAX}
             </span>
             {errorMsg('description')}
-          </div>
-
-          <div class="field">
-            <label for="field-notes">Notes (symptômes, ressenti)</label>
-            <textarea
-              id="field-notes"
-              rows={3}
-              maxLength={NOTES_MAX}
-              value={values.notes}
-              onInput={(e) => update('notes', e.currentTarget.value)}
-              {...errorProps('notes')}
-            />
-            <span class="field__counter">
-              {values.notes.length}/{NOTES_MAX}
-            </span>
-            {errorMsg('notes')}
           </div>
 
           <label class="checkbox">

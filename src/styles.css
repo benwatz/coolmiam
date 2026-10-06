@@ -359,17 +359,6 @@ button.meal-card {
   height: 100%;
 }
 
-.form-preview {
-  margin-bottom: 16px;
-}
-
-.form-preview__label {
-  display: block;
-  margin-bottom: 4px;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
 .field-row {
   display: flex;
   gap: 12px;

@@ -18,7 +18,7 @@ test('refuse une plage invalide et signale une période sans repas', async ({ pa
 test('génère un PDF téléchargeable avec repli si le partage est indisponible', async ({ page }) => {
   await page.goto('/');
   await openDay(page, '2026-10-05');
-  await addMeal(page, { time: '08:00', type: 'Petit-déjeuner', description: 'Café, pain grillé', notes: 'Reflux après 1 h' });
+  await addMeal(page, { time: '08:00', type: 'Petit-déjeuner', description: 'Café, pain grillé' });
   await addMeal(page, { time: '16:30', type: 'Collation', description: 'Crème brûlée', extra: true });
 
   await page.getByRole('button', { name: 'Export' }).click();
