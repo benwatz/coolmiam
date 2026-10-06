@@ -1,5 +1,5 @@
 import { addDays, formatLongDate, isValidDateStr, todayStr } from '../../domain/dates';
-import { IconCalendar, IconChevronLeft, IconChevronRight } from '../../ui/icons';
+import { IconChevronLeft, IconChevronRight } from '../../ui/icons';
 
 interface Props {
   date: string;
@@ -10,14 +10,13 @@ export function DateBar({ date, onChange }: Props) {
   const isToday = date === todayStr();
   return (
     <div class="datebar">
-      <button type="button" class="icon-btn" aria-label="Jour précédent" onClick={() => onChange(addDays(date, -1))}>
+      <button type="button" class="icon-btn datebar__step" aria-label="Jour précédent" onClick={() => onChange(addDays(date, -1))}>
         <IconChevronLeft />
       </button>
       <label class="datebar__picker">
         <span class="datebar__label" data-testid="current-date">
           {formatLongDate(date)}
         </span>
-        <IconCalendar />
         {/* Champ date natif superposé : un appui ouvre le sélecteur du système. */}
         <input
           type="date"
@@ -30,7 +29,7 @@ export function DateBar({ date, onChange }: Props) {
           }}
         />
       </label>
-      <button type="button" class="icon-btn" aria-label="Jour suivant" onClick={() => onChange(addDays(date, 1))}>
+      <button type="button" class="icon-btn datebar__step" aria-label="Jour suivant" onClick={() => onChange(addDays(date, 1))}>
         <IconChevronRight />
       </button>
       <button type="button" class="btn btn--small datebar__today" disabled={isToday} onClick={() => onChange(todayStr())}>

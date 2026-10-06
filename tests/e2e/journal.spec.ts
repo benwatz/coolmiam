@@ -56,6 +56,23 @@ test('modifie tous les champs, y compris la date, puis supprime après confirmat
   await expect(page.getByText('Aucun repas saisi pour ce jour')).toBeVisible();
 });
 
+test('la date du bandeau tient sur une ligne, même longue, sur un écran de 360 px', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 740 });
+  await page.goto('/');
+  for (const day of ['2026-09-30', '2026-09-28', '2026-12-29']) {
+    await openDay(page, day);
+    const label = page.getByTestId('current-date');
+    const { height, lineHeight, scrollWidth, clientWidth } = await label.evaluate((el) => ({
+      height: el.getBoundingClientRect().height,
+      lineHeight: parseFloat(getComputedStyle(el).lineHeight),
+      scrollWidth: el.scrollWidth,
+      clientWidth: el.clientWidth,
+    }));
+    expect(height).toBeLessThan(lineHeight * 1.5);
+    expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 1);
+  }
+});
+
 test('choisir un type propose son heure par défaut', async ({ page }) => {
   await page.getByRole('button', { name: 'Ajouter un repas' }).click();
   const time = page.getByLabel('Heure');

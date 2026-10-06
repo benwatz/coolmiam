@@ -223,8 +223,8 @@ body {
   flex: none;
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 8px 8px;
+  gap: 2px;
+  padding: 8px 4px;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
 }
@@ -237,20 +237,23 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
   font-weight: 600;
   text-align: center;
+  /* Unité de référence (cqw) pour ajuster la taille de la date à la largeur disponible. */
+  container-type: inline-size;
 }
 
 .datebar__label {
-  /* Sur écran étroit (360 px), la date longue passe sur deux lignes plutôt que d'être tronquée. */
-  font-size: 0.95rem;
+  /* Toujours sur une ligne : la police s'ajuste à la largeur disponible. 14,7 em ≈ largeur du pire
+     cas ("dimanche 30 septembre 2026") ; le plafond garde la taille habituelle sur grand écran. */
+  white-space: nowrap;
+  font-size: min(0.95rem, calc(100cqw / 14.7));
   line-height: 1.2;
-  overflow-wrap: anywhere;
 }
 
-.datebar__picker svg {
-  flex: none;
+/* Flèches plus étroites que les autres boutons-icônes pour laisser de la place à la date. */
+.datebar__step {
+  width: 36px;
 }
 
 .datebar__input {
@@ -271,6 +274,8 @@ body {
 
 .datebar__today {
   flex: none;
+  padding: 6px 8px;
+  font-size: 0.85rem;
 }
 
 /* ---------- Cartes repas ---------- */
