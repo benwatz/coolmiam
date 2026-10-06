@@ -66,7 +66,7 @@ body {
 .app {
   display: flex;
   flex-direction: column;
-  height: 100dvh;
+  height: var(--app-height, 100dvh);
   min-height: 100%;
   padding-left: var(--safe-left);
   padding-right: var(--safe-right);

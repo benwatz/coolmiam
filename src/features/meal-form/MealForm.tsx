@@ -39,6 +39,27 @@ export function MealForm({ mealId, initialValues, colors, onSaved, onCancel, onD
     if (submitted) setErrors(validateMeal(values));
   }, [values]);
 
+  // Clavier virtuel : il recouvre la page sans réduire la fenêtre de mise en page (iOS, Chrome Android).
+  // On cale la hauteur de l'application sur la zone réellement visible pour que les boutons
+  // Annuler / Enregistrer restent juste au-dessus du clavier.
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const root = document.documentElement;
+    const sync = () => {
+      root.style.setProperty('--app-height', `${vv.height}px`);
+      if (vv.offsetTop > 0) window.scrollTo(0, 0);
+    };
+    sync();
+    vv.addEventListener('resize', sync);
+    vv.addEventListener('scroll', sync);
+    return () => {
+      vv.removeEventListener('resize', sync);
+      vv.removeEventListener('scroll', sync);
+      root.style.removeProperty('--app-height');
+    };
+  }, []);
+
   // Le brouillon est enregistré tout de suite (pas seulement dans l'effet, exécuté après le rendu) :
   // un rechargement ou l'arrêt de l'application juste après la saisie ne doit pas la perdre.
   const update = <K extends keyof MealInput>(key: K, value: MealInput[K]) => {
