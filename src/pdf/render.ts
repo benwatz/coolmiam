@@ -72,17 +72,19 @@ function drawItem(doc: jsPDF, item: PlacedItem, opts: PdfOptions, now: Date) {
         item.y + 9,
         { baseline: 'top' },
       );
+      const extraCount = opts.meals.filter((m) => m.extra && m.date >= opts.start && m.date <= opts.end).length;
+      doc.text(`Total extra : ${extraCount}`, x, item.y + 15, { baseline: 'top' });
       doc.setFontSize(FONT_SIZE.meta);
       setColor(doc, 'text', '#444444');
       doc.text(
         `Généré le ${formatShortDate(toDateStr(now))} à ${toTimeStr(now)}`,
         x,
-        item.y + 15,
+        item.y + 21,
         { baseline: 'top' },
       );
       setColor(doc, 'draw', '#999999');
       doc.setLineWidth(0.3);
-      doc.line(x, item.y + 21, x + CONTENT_WIDTH, item.y + 21);
+      doc.line(x, item.y + 27, x + CONTENT_WIDTH, item.y + 27);
       break;
     }
     case 'dayTitle': {
