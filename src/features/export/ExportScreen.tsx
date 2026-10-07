@@ -16,6 +16,12 @@ interface Generated {
   canShare: boolean;
 }
 
+/** Échec de chargement d'un module différé (fichier disparu après un déploiement). */
+function isStaleModuleError(err: unknown): boolean {
+  const text = err instanceof Error ? `${err.name} ${err.message}` : String(err);
+  return /dynamically imported module|Importing a module script failed|Loading chunk|error loading dynamically/i.test(text);
+}
+
 export function ExportScreen({ colors }: Props) {
   const repo = useRepo();
   const [start, setStart] = useState(() => addDays(todayStr(), -6));
@@ -72,7 +78,14 @@ export function ExportScreen({ colors }: Props) {
       }
     } catch (err) {
       console.error(err);
-      setMessage('La génération du PDF a échoué. Veuillez réessayer.');
+      if (isStaleModuleError(err)) {
+        // Page ouverte avant un déploiement : le module d'export n'existe plus, on recharge.
+        setMessage("L'application vient d'être mise à jour. Rechargement…");
+        setTimeout(() => window.location.reload(), 1200);
+      } else {
+        const detail = err instanceof Error ? ` (${err.name} : ${err.message})` : '';
+        setMessage(`La génération du PDF a échoué${detail}. Veuillez réessayer.`);
+      }
     } finally {
       setGenerating(false);
     }

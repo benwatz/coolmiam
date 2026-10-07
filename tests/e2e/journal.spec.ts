@@ -102,6 +102,9 @@ test('choisir un type propose son heure par défaut', async ({ page }) => {
     ['Collation', '16:00'],
     ['Dîner', '19:00'],
   ];
+  // Le type proposé à l'ouverture dépend de l'heure réelle : on part d'un type neutre pour que chaque
+  // sélection du tour suivant soit bien un changement.
+  await page.getByRole('radio', { name: 'Autre', exact: true }).check();
   for (const [type, hour] of expected) {
     await page.getByRole('radio', { name: type, exact: true }).check();
     await expect(time).toHaveValue(hour);

@@ -65,3 +65,20 @@ test('le partage est proposé quand le navigateur sait partager un fichier', asy
   const shared = await page.evaluate(() => (window as unknown as { __shared: unknown[] }).__shared);
   expect(shared).toEqual([{ title: 'Journal alimentaire', name: 'journal-alimentaire_2026-10-06_2026-10-06.pdf', type: 'application/pdf' }]);
 });
+
+test.describe('module d\'export disparu', () => {
+  // Sans service worker : sinon la requête réseau interceptée par le test est servie par son cache.
+  test.use({ serviceWorkers: 'block' });
+
+  test('recharge l\'application si le module d\'export a disparu après un déploiement', async ({ page }) => {
+    await page.goto('/');
+    await addMeal(page, { time: '12:00', type: 'Déjeuner', description: 'Riz' });
+    await page.route('**/assets/render-*.js', (route) => route.abort());
+    await page.getByRole('button', { name: 'Export' }).click();
+    await expect(page.getByTestId('export-count')).toContainText('1 repas');
+    const reloaded = page.waitForEvent('load');
+    await page.getByRole('button', { name: 'Générer le PDF' }).click();
+    await expect(page.getByText("L'application vient d'être mise à jour")).toBeVisible();
+    await reloaded;
+  });
+});
