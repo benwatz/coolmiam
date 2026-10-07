@@ -1,6 +1,6 @@
 import { jsPDF } from 'jspdf';
 import { hexToRgb, textColorFor } from '../domain/contrast';
-import { capitalize, dateRange, formatLongDate, formatShortDate, toDateStr, toTimeStr } from '../domain/dates';
+import { capitalize, dateRange, formatLongDate, formatShortDate } from '../domain/dates';
 import { EXTRA_COLOR, MEAL_TYPE_LABELS, type Meal, type TypeColors } from '../domain/types';
 import { registerFonts, PDF_FONT } from './fonts';
 import {
@@ -34,7 +34,6 @@ export interface PdfOptions {
   end: string;
   meals: Meal[];
   colors: TypeColors;
-  now?: Date;
 }
 
 function setColor(doc: jsPDF, kind: 'text' | 'fill' | 'draw', hex: string) {
@@ -56,7 +55,7 @@ function measureMeal(doc: jsPDF, meal: Meal): MealMeasure {
   return { descLines, noteLines };
 }
 
-function drawItem(doc: jsPDF, item: PlacedItem, opts: PdfOptions, now: Date) {
+function drawItem(doc: jsPDF, item: PlacedItem, opts: PdfOptions) {
   const x = PAGE.margin;
   switch (item.kind) {
     case 'header': {
@@ -76,17 +75,9 @@ function drawItem(doc: jsPDF, item: PlacedItem, opts: PdfOptions, now: Date) {
       doc.setFont(PDF_FONT, 'bold');
       doc.text(`Total extra(s) : ${extraCount}`, x, item.y + 15, { baseline: 'top' });
       doc.setFont(PDF_FONT, 'normal');
-      doc.setFontSize(FONT_SIZE.meta);
-      setColor(doc, 'text', '#444444');
-      doc.text(
-        `Généré le ${formatShortDate(toDateStr(now))} à ${toTimeStr(now)}`,
-        x,
-        item.y + 21,
-        { baseline: 'top' },
-      );
       setColor(doc, 'draw', '#999999');
       doc.setLineWidth(0.3);
-      doc.line(x, item.y + 27, x + CONTENT_WIDTH, item.y + 27);
+      doc.line(x, item.y + 21, x + CONTENT_WIDTH, item.y + 21);
       break;
     }
     case 'dayTitle': {
@@ -150,7 +141,6 @@ function drawItem(doc: jsPDF, item: PlacedItem, opts: PdfOptions, now: Date) {
 
 /** Génère le PDF A4 du journal sur la période [start, end] (bornes incluses). */
 export async function generateJournalPdf(opts: PdfOptions): Promise<Blob> {
-  const now = opts.now ?? new Date();
   const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait', compress: true });
   await registerFonts(doc);
   doc.setProperties({ title: PDF_TITLE, subject: PDF_TITLE, creator: '' });
@@ -161,7 +151,7 @@ export async function generateJournalPdf(opts: PdfOptions): Promise<Blob> {
 
   pages.forEach((items, index) => {
     if (index > 0) doc.addPage('a4', 'portrait');
-    for (const item of items) drawItem(doc, item, opts, now);
+    for (const item of items) drawItem(doc, item, opts);
   });
 
   const total = pages.length;

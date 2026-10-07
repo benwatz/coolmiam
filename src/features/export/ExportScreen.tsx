@@ -73,7 +73,7 @@ export function ExportScreen({ colors }: Props) {
       replaceGenerated({ file, url: URL.createObjectURL(file), canShare: shareOk });
       if (!shareOk) {
         setMessage(
-          `Le partage direct n'est pas disponible sur cet appareil. Utilisez "Enregistrer / ouvrir" pour récupérer le PDF (${PDF_TITLE}).`,
+          `Le partage direct n'est pas disponible sur cet appareil. Utilisez "Télécharger" pour récupérer le PDF (${PDF_TITLE}).`,
         );
       }
     } catch (err) {
@@ -96,9 +96,9 @@ export function ExportScreen({ colors }: Props) {
     const result = await shareFile(generated.file, 'Journal alimentaire');
     if (result === 'unsupported') {
       replaceGenerated({ ...generated, canShare: false });
-      setMessage(`Le partage direct n'est pas disponible sur cet appareil. Utilisez "Enregistrer / ouvrir".`);
+      setMessage(`Le partage direct n'est pas disponible sur cet appareil. Utilisez "Télécharger".`);
     } else if (result === 'error') {
-      setMessage(`Le partage a échoué. Vous pouvez utiliser "Enregistrer / ouvrir".`);
+      setMessage(`Le partage a échoué. Vous pouvez utiliser "Télécharger".`);
     }
   };
 
@@ -167,7 +167,7 @@ export function ExportScreen({ colors }: Props) {
                 </button>
               )}
               <a class="btn" href={generated.url} download={generated.file.name} target="_blank" rel="noopener">
-                Enregistrer / ouvrir
+                Télécharger
               </a>
             </div>
           </div>

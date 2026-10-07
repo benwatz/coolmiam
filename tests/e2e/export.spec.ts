@@ -35,7 +35,7 @@ test('génère un PDF téléchargeable avec repli si le partage est indisponible
   }
 
   const downloadPromise = page.waitForEvent('download');
-  await page.getByRole('link', { name: 'Enregistrer / ouvrir' }).click();
+  await page.getByRole('link', { name: 'Télécharger' }).click();
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toBe('journal-alimentaire_2026-10-04_2026-10-06.pdf');
   const data = await readFile((await download.path())!);

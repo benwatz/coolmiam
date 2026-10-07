@@ -17,7 +17,7 @@ export const CONTENT_BOTTOM = PAGE.height - PAGE.margin - PAGE.footerHeight;
 export const CONTENT_WIDTH = PAGE.width - 2 * PAGE.margin;
 
 export const SIZES = {
-  headerHeight: 30,
+  headerHeight: 24,
   dayTitleHeight: 8,
   /** Espace avant un titre de jour (sauf en haut de page). */
   dayGap: 4,
