@@ -667,6 +667,31 @@ button.meal-card {
   cursor: pointer;
 }
 
+.tabbar__item {
+  position: relative;
+}
+
+.tabbar__badge {
+  position: absolute;
+  top: 8px;
+  left: calc(50% + 8px);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--danger);
+  border: 2px solid var(--surface);
+  box-sizing: content-box;
+}
+
+.update-status {
+  margin: 0 0 8px;
+}
+
+.update-status--available {
+  font-weight: 600;
+  color: var(--primary);
+}
+
 .tabbar__item--active {
   color: var(--primary);
 }

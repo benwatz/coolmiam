@@ -2,6 +2,7 @@ import { useSession } from '../../auth/session';
 import { useLiveQuery } from '../../db/useLiveQuery';
 import { textColorFor } from '../../domain/contrast';
 import type { AdminStatus } from '../../backend/types';
+import { checkForUpdate, reloadToUpdate, useUpdateState } from '../../pwa/update';
 import { AdminPanel } from './AdminPanel';
 import { DEFAULT_TYPE_COLORS, MEAL_TYPES, MEAL_TYPE_LABELS, type MealType, type TypeColors } from '../../domain/types';
 
@@ -13,6 +14,7 @@ export function SettingsScreen({ colors }: Props) {
   const { repo, admin, user, signOut } = useSession();
   const adminStatus = useLiveQuery<AdminStatus>((cb) => admin.watchAdminStatus(user.uid, cb), [admin, user.uid]);
   const isAdmin = adminStatus?.isAdmin === true;
+  const update = useUpdateState();
 
   const setColor = (type: MealType, value: string) => {
     void repo.setTypeColors({ ...colors, [type]: value });
@@ -59,6 +61,35 @@ export function SettingsScreen({ colors }: Props) {
         </button>
 
         {isAdmin && <AdminPanel />}
+
+        <h3 class="section-title">Mise à jour</h3>
+        <div data-testid="update-section">
+          {update.available ? (
+            <>
+              <p class="update-status update-status--available" role="status" data-testid="update-available">
+                Une nouvelle version est disponible.
+              </p>
+              <button type="button" class="btn btn--primary btn--block" onClick={() => void reloadToUpdate()}>
+                Recharger pour mettre à jour
+              </button>
+            </>
+          ) : (
+            <>
+              <p class="update-status" role="status">
+                {update.checking
+                  ? 'Recherche de mise à jour...'
+                  : update.failed
+                    ? 'Vérification impossible (connexion indisponible).'
+                    : update.checkedAt
+                      ? 'L\'application est à jour.'
+                      : 'Version non vérifiée.'}
+              </p>
+              <button type="button" class="btn btn--block" disabled={update.checking} onClick={() => void checkForUpdate()}>
+                Rechercher une mise à jour
+              </button>
+            </>
+          )}
+        </div>
 
         <h3 class="section-title">Informations</h3>
         <dl class="info-list">

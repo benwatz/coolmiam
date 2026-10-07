@@ -85,7 +85,7 @@ Pour un autre hébergeur statique (Netlify, Cloudflare Pages...) : `npm run buil
 dossier `dist/`. Variable `BASE_PATH` à renseigner seulement si l'application est servie dans un
 sous-dossier (par défaut `/`).
 
-Après une mise à jour, le service worker se met à jour automatiquement au lancement suivant.
+Mise à jour : l'application cherche une nouvelle version au lancement, à chaque retour au premier plan, au retour de la connexion et toutes les 15 minutes. Quand une version est prête, une pastille apparaît sur l'onglet Réglages, dont la section "Mise à jour" propose le bouton "Recharger pour mettre à jour" (aucune réinstallation nécessaire).
 
 ## Installation sur l'écran d'accueil
 

@@ -31,6 +31,12 @@ commandes (`npm test`, `npm run test:e2e`, `npm run build`).
   demande ; elle réapparaît si le compte se reconnecte). Les règles donnent à un administrateur la
   lecture de `accessRequests` et la lecture/écriture de `allowedUsers`. L'administrateur ne peut pas se
   révoquer lui-même depuis l'interface.
+- **Mise à jour de la PWA** : `registerType: 'prompt'` (le nouveau service worker attend, il n'est plus
+  activé d'office). `src/pwa/update.ts` enregistre le service worker et lance `registration.update()` au
+  lancement, au retour au premier plan, en ligne et toutes les 15 min ; la logique d'état est dans
+  `src/pwa/updateStore.ts` (pure, testée). Réglages > "Mise à jour" + pastille sur l'onglet : bouton
+  "Recharger pour mettre à jour" (`updateSW(true)`, rechargement après prise de contrôle). Le brouillon
+  du formulaire survit au rechargement.
 - **Pas de migration** des anciens repas IndexedDB (saisis avant octobre 2026) : ils restent dans le
   navigateur mais ne sont plus lus.
 - **Couleurs non stockées par repas** : table `settings`, clé `typeColors`, normalisée par
