@@ -18,6 +18,9 @@ export default defineConfig({
       injectRegister: false,
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
+        // Identité explicite de la PWA (sinon déduite du start_url) : évite toute confusion avec une autre
+        // application du même domaine. Résolu depuis la racine du site : '/coolmiam/' sur GitHub Pages.
+        id: base,
         name: 'Coolmiam',
         short_name: 'Coolmiam',
         description: 'Journal alimentaire personnel, stocké uniquement sur cet appareil.',

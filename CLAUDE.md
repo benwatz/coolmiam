@@ -37,6 +37,8 @@ commandes (`npm test`, `npm run test:e2e`, `npm run build`).
   `src/pwa/updateStore.ts` (pure, testée). Réglages > "Mise à jour" + pastille sur l'onglet : bouton
   "Recharger pour mettre à jour" (`updateSW(true)`, rechargement après prise de contrôle). Le brouillon
   du formulaire survit au rechargement.
+- **Identité de la PWA** : `id` explicite dans le manifeste (valeur de `BASE_PATH`, soit `/coolmiam/` en production), ajouté
+  après un message Chrome "déjà installée" alors que l'application n'était pas installée.
 - **Pas de migration** des anciens repas IndexedDB (saisis avant octobre 2026) : ils restent dans le
   navigateur mais ne sont plus lus.
 - **Couleurs non stockées par repas** : table `settings`, clé `typeColors`, normalisée par
