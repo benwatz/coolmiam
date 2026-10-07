@@ -73,7 +73,9 @@ function drawItem(doc: jsPDF, item: PlacedItem, opts: PdfOptions, now: Date) {
         { baseline: 'top' },
       );
       const extraCount = opts.meals.filter((m) => m.extra && m.date >= opts.start && m.date <= opts.end).length;
-      doc.text(`Total extra : ${extraCount}`, x, item.y + 15, { baseline: 'top' });
+      doc.setFont(PDF_FONT, 'bold');
+      doc.text(`Total extra(s) : ${extraCount}`, x, item.y + 15, { baseline: 'top' });
+      doc.setFont(PDF_FONT, 'normal');
       doc.setFontSize(FONT_SIZE.meta);
       setColor(doc, 'text', '#444444');
       doc.text(
