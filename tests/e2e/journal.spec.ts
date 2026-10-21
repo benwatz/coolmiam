@@ -183,3 +183,37 @@ test('le changement de couleur s\'applique aux repas existants', async ({ page }
   await openDay(page);
   await expect(card).toHaveCSS('background-color', 'rgb(185, 215, 242)');
 });
+
+// PNG 2x2 : l'application le recompresse en JPEG.
+const PNG = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFElEQVR4nGP8z8Dwn4GBgYEBRAAAFQQCAF8NfQAAAABJRU5ErkJggg==',
+  'base64',
+);
+
+test('un repas avec photo seule est valide, la photo se supprime et s\'exporte', async ({ page }) => {
+  await page.getByRole('button', { name: 'Ajouter un repas' }).click();
+  // Sans photo ni description : refusé.
+  await page.getByRole('button', { name: 'Enregistrer' }).click();
+  await expect(page.getByText('La description est obligatoire.')).toBeVisible();
+
+  await page.getByTestId('photo-input').setInputFiles({ name: 'repas.png', mimeType: 'image/png', buffer: PNG });
+  await expect(page.getByRole('img', { name: 'Photo du repas' })).toBeVisible();
+  await expect(page.getByText('La description est obligatoire.')).toBeHidden();
+
+  // Le bouton photo est masqué pendant la saisie de la description.
+  await page.getByLabel('Description').focus();
+  await expect(page.getByRole('img', { name: 'Photo du repas' })).toBeHidden();
+  await page.getByLabel('Heure').focus();
+  await expect(page.getByRole('img', { name: 'Photo du repas' })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Enregistrer' }).click();
+  const card = page.getByTestId('meal-card');
+  await expect(card.getByRole('img', { name: 'Photo du repas' })).toBeVisible();
+
+  // Suppression de la photo, puis impossible d'enregistrer sans description.
+  await card.click();
+  await page.getByRole('button', { name: 'Supprimer la photo' }).click();
+  await expect(page.getByRole('button', { name: 'Prendre une photo' })).toBeVisible();
+  await page.getByRole('button', { name: 'Enregistrer' }).click();
+  await expect(page.getByText('La description est obligatoire.')).toBeVisible();
+});

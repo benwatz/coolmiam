@@ -32,13 +32,28 @@ export const SIZES = {
 export interface MealMeasure {
   descLines: string[];
   noteLines: string[];
+  /** Taille de la photo dans le PDF (mm), absente si le repas n'en a pas. */
+  photo?: { width: number; height: number };
+}
+
+/** Zone maximale d'une photo dans le PDF (mm) ; les proportions sont conservées. */
+export const PHOTO_BOX = { width: 40, height: 55 } as const;
+
+export function fitPhoto(pixelWidth: number, pixelHeight: number): { width: number; height: number } {
+  const scale = Math.min(PHOTO_BOX.width / pixelWidth, PHOTO_BOX.height / pixelHeight);
+  return { width: pixelWidth * scale, height: pixelHeight * scale };
 }
 
 export function mealBlockHeight(m: MealMeasure): number {
   let h = 2 * SIZES.blockPadding + SIZES.firstLineHeight;
-  h += SIZES.innerGap + m.descLines.length * SIZES.bodyLineHeight;
+  if (m.descLines.length > 0) {
+    h += SIZES.innerGap + m.descLines.length * SIZES.bodyLineHeight;
+  }
   if (m.noteLines.length > 0) {
     h += SIZES.innerGap + m.noteLines.length * SIZES.bodyLineHeight;
+  }
+  if (m.photo) {
+    h += SIZES.innerGap + m.photo.height;
   }
   return h;
 }

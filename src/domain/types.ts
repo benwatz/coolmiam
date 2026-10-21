@@ -12,6 +12,8 @@ export interface Meal {
   description: string;
   notes: string;
   extra: boolean;
+  /** Une photo est stockée à part (collection photos) ; absent sur les anciens repas. */
+  hasPhoto?: boolean;
   /** ISO 8601. */
   createdAt: string;
   /** ISO 8601. */

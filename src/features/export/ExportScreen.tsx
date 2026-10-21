@@ -67,7 +67,8 @@ export function ExportScreen({ colors }: Props) {
       // Import différé : jsPDF n'est chargé qu'au moment de l'export.
       const { generateJournalPdf, PDF_TITLE } = await import('../../pdf/render');
       const meals = await repo.getMealsInRange(start, end);
-      const blob = await generateJournalPdf({ start, end, meals, colors });
+      const photos = await repo.getPhotos(meals);
+      const blob = await generateJournalPdf({ start, end, meals, colors, photos });
       const file = new File([blob], exportFileName(start, end), { type: 'application/pdf' });
       const shareOk = canShareFile(file);
       replaceGenerated({ file, url: URL.createObjectURL(file), canShare: shareOk });

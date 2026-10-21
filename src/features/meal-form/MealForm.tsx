@@ -11,7 +11,8 @@ import {
   type TypeColors,
 } from '../../domain/types';
 import { ConfirmDialog } from '../../ui/ConfirmDialog';
-import { IconCheck } from '../../ui/icons';
+import { compressPhoto } from '../../domain/photo';
+import { IconCamera, IconCheck, IconClose } from '../../ui/icons';
 import { saveDraft } from './draft';
 
 /** Réduction minimale de la zone visible à partir de laquelle on considère le clavier ouvert. */
@@ -39,10 +40,52 @@ export function MealForm({ mealId, initialValues, colors, onSaved, onCancel, onD
   const [saveError, setSaveError] = useState<string | null>(null);
   const isEdit = mealId !== null;
 
+  // Photo (une seule par repas) : data-URL compressée. photoChanged distingue "inchangée" de "supprimée".
+  const [photo, setPhoto] = useState<string | null>(null);
+  const photoChanged = useRef(false);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  const [descriptionFocused, setDescriptionFocused] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!mealId) return;
+    let active = true;
+    repo
+      .getPhoto(mealId)
+      .then((existing) => {
+        if (active && existing && !photoChanged.current) setPhoto(existing);
+      })
+      .catch(console.error);
+    return () => {
+      active = false;
+    };
+  }, [mealId]);
+
   useEffect(() => {
     saveDraft({ mealId, values });
-    if (submitted) setErrors(validateMeal(values));
-  }, [values]);
+    if (submitted) setErrors(validateMeal(values, photo !== null));
+  }, [values, photo]);
+
+  const onPhotoPicked = async (e: Event) => {
+    const input = e.currentTarget as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+    setPhotoError(null);
+    try {
+      const compressed = await compressPhoto(file);
+      photoChanged.current = true;
+      setPhoto(compressed);
+    } catch (err) {
+      console.error(err);
+      setPhotoError("La photo n'a pas pu être utilisée. Veuillez réessayer.");
+    }
+  };
+
+  const removePhoto = () => {
+    photoChanged.current = true;
+    setPhoto(null);
+  };
 
   // Clavier virtuel : il recouvre la page sans réduire la fenêtre de mise en page (iOS, Chrome Android).
   // On cale la hauteur de l'application sur la zone réellement visible pour que les boutons
@@ -89,18 +132,20 @@ export function MealForm({ mealId, initialValues, colors, onSaved, onCancel, onD
   const submit = async (e: Event) => {
     e.preventDefault();
     setSubmitted(true);
-    const found = validateMeal(values);
+    const found = validateMeal(values, photo !== null);
     setErrors(found);
     if (hasErrors(found)) {
-      const first = (['date', 'time', 'type', 'description'] as const).find((k) => found[k]);
+      // Pas de focus sur la description : cela masquerait le bouton photo, autre façon de valider.
+      const first = (['date', 'time', 'type'] as const).find((k) => found[k]);
       if (first) document.getElementById(`field-${first}`)?.focus();
       return;
     }
     setSaving(true);
     setSaveError(null);
     try {
-      if (isEdit) await repo.updateMeal(mealId, values);
-      else await repo.addMeal(values);
+      const now = new Date();
+      if (isEdit) await repo.updateMeal(mealId, values, now, photoChanged.current ? photo : undefined);
+      else await repo.addMeal(values, now, photo);
       onSaved(values.date);
     } catch (err) {
       console.error(err);
@@ -202,9 +247,11 @@ export function MealForm({ mealId, initialValues, colors, onSaved, onCancel, onD
               id="field-description"
               rows={3}
               maxLength={DESCRIPTION_MAX}
-              required
+              required={photo === null}
               value={values.description}
               onInput={(e) => update('description', e.currentTarget.value)}
+              onFocus={() => setDescriptionFocused(true)}
+              onBlur={() => setDescriptionFocused(false)}
               {...errorProps('description')}
             />
             <span class="field__counter">
@@ -225,6 +272,38 @@ export function MealForm({ mealId, initialValues, colors, onSaved, onCancel, onD
             </button>
           )}
         </div>
+
+        {!descriptionFocused && (
+          <div class="photo-zone">
+            <input
+              ref={fileInput}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              hidden
+              data-testid="photo-input"
+              onChange={onPhotoPicked}
+            />
+            {photo ? (
+              <div class="photo-zone__preview">
+                <img src={photo} alt="Photo du repas" />
+                <button type="button" class="photo-zone__remove" aria-label="Supprimer la photo" onClick={removePhoto}>
+                  <IconClose />
+                </button>
+              </div>
+            ) : (
+              <button type="button" class="photo-zone__take" onClick={() => fileInput.current?.click()}>
+                <IconCamera size={48} />
+                <span>Prendre une photo</span>
+              </button>
+            )}
+            {photoError && (
+              <p class="field__error" role="alert">
+                {photoError}
+              </p>
+            )}
+          </div>
+        )}
 
         <div class="form-actions">
           <button type="button" class="btn" onClick={onCancel}>

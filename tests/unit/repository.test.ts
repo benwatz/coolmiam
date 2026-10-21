@@ -100,3 +100,35 @@ describe('réglages', () => {
     expect(current()).toEqual(DEFAULT_TYPE_COLORS);
   });
 });
+
+describe('photo du repas', () => {
+  const PHOTO = 'data:image/jpeg;base64,AAAA';
+
+  it('enregistre, remplace puis supprime la photo', async () => {
+    const meal = await repo.addMeal(input({ description: '' }), new Date(), PHOTO);
+    expect(meal.hasPhoto).toBe(true);
+    expect(await repo.getPhoto(meal.id)).toBe(PHOTO);
+
+    // undefined : inchangée.
+    await repo.updateMeal(meal.id, input({ description: 'Pomme' }));
+    expect((await repo.getMeal(meal.id))?.hasPhoto).toBe(true);
+    expect(await repo.getPhoto(meal.id)).toBe(PHOTO);
+
+    await repo.updateMeal(meal.id, input({ description: 'Pomme' }), new Date(), 'data:image/jpeg;base64,BBBB');
+    expect(await repo.getPhoto(meal.id)).toBe('data:image/jpeg;base64,BBBB');
+
+    await repo.updateMeal(meal.id, input({ description: 'Pomme' }), new Date(), null);
+    expect((await repo.getMeal(meal.id))?.hasPhoto).toBe(false);
+    expect(await repo.getPhoto(meal.id)).toBeUndefined();
+  });
+
+  it('supprime la photo avec le repas et ne charge que celles qui existent', async () => {
+    const withPhoto = await repo.addMeal(input({}), new Date(), PHOTO);
+    const without = await repo.addMeal(input({}));
+    const photos = await repo.getPhotos([withPhoto, without]);
+    expect([...photos.keys()]).toEqual([withPhoto.id]);
+
+    await repo.deleteMeal(withPhoto.id);
+    expect(await repo.getPhoto(withPhoto.id)).toBeUndefined();
+  });
+});

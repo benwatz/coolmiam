@@ -767,3 +767,70 @@ button.meal-card {
   color: var(--text-muted);
   font-weight: 600;
 }
+
+/* ---------- Photo du repas ---------- */
+
+.photo-zone {
+  flex: none;
+  padding: 8px 16px 12px;
+}
+
+.photo-zone__take,
+.photo-zone__preview {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: min(36vh, 300px);
+  min-height: 140px;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.photo-zone__take {
+  flex-direction: column;
+  gap: 8px;
+  border: 2px dashed var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.photo-zone__preview {
+  background: #000000;
+}
+
+.photo-zone__preview img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.photo-zone__remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.65);
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.meal-card__photo {
+  display: block;
+  align-self: flex-start;
+  width: 72px;
+  height: 72px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: rgba(0, 0, 0, 0.08);
+}

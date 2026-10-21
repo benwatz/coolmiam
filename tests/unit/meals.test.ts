@@ -94,3 +94,12 @@ describe('divers', () => {
     });
   });
 });
+
+describe('validation avec photo', () => {
+  const base = { date: '2026-10-06', time: '12:00', type: 'dejeuner' as const, description: '', notes: '', extra: false };
+
+  it('exige la description sans photo, pas avec une photo', () => {
+    expect(validateMeal(base).description).toBe('La description est obligatoire.');
+    expect(validateMeal(base, true)).toEqual({});
+  });
+});

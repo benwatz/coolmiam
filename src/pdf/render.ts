@@ -9,6 +9,7 @@ import {
   SIZES,
   groupByDay,
   layoutJournal,
+  fitPhoto,
   type MealMeasure,
   type PlacedItem,
 } from './layout';
@@ -34,6 +35,8 @@ export interface PdfOptions {
   end: string;
   meals: Meal[];
   colors: TypeColors;
+  /** Photos (data-URL JPEG) par identifiant de repas. */
+  photos?: Map<string, string>;
 }
 
 function setColor(doc: jsPDF, kind: 'text' | 'fill' | 'draw', hex: string) {
@@ -43,16 +46,21 @@ function setColor(doc: jsPDF, kind: 'text' | 'fill' | 'draw', hex: string) {
   else doc.setDrawColor(r, g, b);
 }
 
-function measureMeal(doc: jsPDF, meal: Meal): MealMeasure {
+function measureMeal(doc: jsPDF, meal: Meal, photo?: string): MealMeasure {
   doc.setFont(PDF_FONT, 'normal');
   doc.setFontSize(FONT_SIZE.body);
-  const descLines = doc.splitTextToSize(meal.description, TEXT_WIDTH) as string[];
+  const descLines = meal.description.trim() ? (doc.splitTextToSize(meal.description, TEXT_WIDTH) as string[]) : [];
   let noteLines: string[] = [];
   if (meal.notes.trim()) {
     doc.setFont(PDF_FONT, 'italic');
     noteLines = doc.splitTextToSize(`Notes : ${meal.notes}`, TEXT_WIDTH) as string[];
   }
-  return { descLines, noteLines };
+  const measure: MealMeasure = { descLines, noteLines };
+  if (photo) {
+    const props = doc.getImageProperties(photo);
+    measure.photo = fitPhoto(props.width, props.height);
+  }
+  return measure;
 }
 
 function drawItem(doc: jsPDF, item: PlacedItem, opts: PdfOptions) {
@@ -134,6 +142,11 @@ function drawItem(doc: jsPDF, item: PlacedItem, opts: PdfOptions) {
           ty += SIZES.bodyLineHeight;
         }
       }
+      const image = opts.photos?.get(meal.id);
+      if (measure.photo && image) {
+        if (measure.descLines.length > 0 || measure.noteLines.length > 0) ty += SIZES.innerGap;
+        doc.addImage(image, 'JPEG', tx, ty, measure.photo.width, measure.photo.height);
+      }
       break;
     }
   }
@@ -147,7 +160,7 @@ export async function generateJournalPdf(opts: PdfOptions): Promise<Blob> {
   doc.setLanguage('fr');
 
   const days = groupByDay(dateRange(opts.start, opts.end), opts.meals);
-  const pages = layoutJournal(days, (meal) => measureMeal(doc, meal));
+  const pages = layoutJournal(days, (meal) => measureMeal(doc, meal, opts.photos?.get(meal.id)));
 
   pages.forEach((items, index) => {
     if (index > 0) doc.addPage('a4', 'portrait');

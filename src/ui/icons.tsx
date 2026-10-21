@@ -70,3 +70,17 @@ export const IconCheck = ({ size = 16 }: IconProps) => (
     <path d="M20 6 9 17l-5-5" />
   </svg>
 );
+
+export const IconCamera = ({ size = 24 }: IconProps) => (
+  <svg {...base(size)}>
+    <path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" />
+    <circle cx="12" cy="13.5" r="3.5" />
+  </svg>
+);
+
+export const IconClose = ({ size = 20 }: IconProps) => (
+  <svg {...base(size)}>
+    <path d="M6 6l12 12" />
+    <path d="M18 6 6 18" />
+  </svg>
+);

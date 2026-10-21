@@ -28,7 +28,12 @@ export interface Store {
   getMeal(id: string): Promise<Meal | undefined>;
   /** Résout dès que l'écriture est prise en compte localement (sans attendre le serveur, hors ligne). */
   putMeal(meal: Meal): Promise<void>;
+  /** Supprime aussi la photo du repas. */
   deleteMeal(id: string): Promise<void>;
+  /** Photo d'un repas (data-URL JPEG), stockée à part pour garder les listes de repas légères. */
+  getPhoto(mealId: string): Promise<string | undefined>;
+  putPhoto(mealId: string, dataUrl: string): Promise<void>;
+  deletePhoto(mealId: string): Promise<void>;
   watchSetting(key: string, callback: (value: unknown) => void): Unsubscribe;
   setSetting(key: string, value: unknown): Promise<void>;
 }

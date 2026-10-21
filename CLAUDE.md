@@ -48,6 +48,14 @@ commandes (`npm test`, `npm run test:e2e`, `npm run build`).
 - **Brouillon du formulaire** : enregistré à chaque modification dans `localStorage`
   (`coolmiam.formDraft`) et restauré au lancement, pour ne pas perdre la saisie si le système tue
   l'application en arrière-plan. Effacé à l'enregistrement, l'annulation ou la suppression.
+- **Photo d'un repas** (1 max, facultative) : capture par `<input type="file" accept="image/*" capture>`
+  (le système gère l'autorisation caméra), réduite à 1024 px et recompressée en JPEG 0,7 par canvas
+  (`src/domain/photo.ts`, EXIF supprimé). Stockée en data-URL dans `users/{uid}/photos/{mealId}`
+  (`Store.getPhoto/putPhoto/deletePhoto`) ; le repas porte seulement `hasPhoto`, ce qui garde les
+  listes légères (miniature chargée à la demande, `MealThumb`). Avec une photo, la description devient
+  facultative (`validateMeal(input, hasPhoto)`). Le bouton photo est masqué quand la description a le
+  focus. Photo non incluse dans le brouillon localStorage (trop volumineuse). Dans le PDF : sous le
+  texte, dans une zone de 40 x 55 mm (`fitPhoto`), description vide = rien d'affiché.
 - **Type proposé par défaut** à la création selon l'heure (`suggestMealType()`), modifiable. Ajout
   non prévu par la spec.
 - **Après enregistrement**, le Journal se positionne sur la date du repas (utile quand la date a
@@ -69,7 +77,7 @@ GitHub Actions.
 ## Hors périmètre v1 / pistes
 
 Export/import JSON de sauvegarde (recommandé, stockage local seul), duplication d'un repas,
-repas favoris, page d'administration des accès. Pas de calories, photos, statistiques.
+repas favoris, page d'administration des accès. Pas de calories, statistiques.
 
 ## Design
 

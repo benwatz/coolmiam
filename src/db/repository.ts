@@ -34,19 +34,50 @@ export function createRepository(store: Store) {
       return store.getMeal(id);
     },
 
-    async addMeal(input: MealInput, now: Date = new Date()): Promise<Meal> {
+    /** photo : data-URL JPEG déjà compressée (une seule par repas). */
+    async addMeal(input: MealInput, now: Date = new Date(), photo?: string | null): Promise<Meal> {
       const iso = now.toISOString();
       const meal: Meal = { id: generateId(), ...normalizeInput(input), createdAt: iso, updatedAt: iso };
+      if (photo) {
+        meal.hasPhoto = true;
+        await store.putPhoto(meal.id, photo);
+      }
       await store.putMeal(meal);
       return meal;
     },
 
-    async updateMeal(id: string, input: MealInput, now: Date = new Date()): Promise<Meal> {
+    /** photo : undefined = inchangée, null = supprimée, sinon remplacée. */
+    async updateMeal(id: string, input: MealInput, now: Date = new Date(), photo?: string | null): Promise<Meal> {
       const existing = await store.getMeal(id);
       if (!existing) throw new Error('Repas introuvable.');
       const meal: Meal = { ...existing, ...normalizeInput(input), updatedAt: now.toISOString() };
+      if (photo) {
+        meal.hasPhoto = true;
+        await store.putPhoto(id, photo);
+      } else if (photo === null) {
+        meal.hasPhoto = false;
+        await store.deletePhoto(id);
+      }
       await store.putMeal(meal);
       return meal;
+    },
+
+    async getPhoto(mealId: string): Promise<string | undefined> {
+      return store.getPhoto(mealId);
+    },
+
+    /** Photos (data-URL) des repas qui en ont une, par identifiant de repas. */
+    async getPhotos(meals: Meal[]): Promise<Map<string, string>> {
+      const photos = new Map<string, string>();
+      await Promise.all(
+        meals
+          .filter((m) => m.hasPhoto)
+          .map(async (m) => {
+            const photo = await store.getPhoto(m.id);
+            if (photo) photos.set(m.id, photo);
+          }),
+      );
+      return photos;
     },
 
     async deleteMeal(id: string): Promise<void> {

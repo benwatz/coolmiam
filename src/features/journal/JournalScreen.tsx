@@ -2,6 +2,7 @@ import { useRepo } from '../../auth/session';
 import { useLiveQuery } from '../../db/useLiveQuery';
 import type { Meal, TypeColors } from '../../domain/types';
 import { MealCard } from '../../ui/MealCard';
+import { MealThumb } from '../../ui/MealThumb';
 import { IconPlus } from '../../ui/icons';
 import { DateBar } from './DateBar';
 
@@ -33,7 +34,12 @@ export function JournalScreen({ date, colors, onDateChange, onAdd, onEdit }: Pro
           <ul class="meal-list" aria-label="Repas du jour">
             {meals.map((meal) => (
               <li key={meal.id}>
-                <MealCard meal={meal} colors={colors} onClick={() => onEdit(meal)} />
+                <MealCard
+                  meal={meal}
+                  colors={colors}
+                  photo={meal.hasPhoto ? <MealThumb mealId={meal.id} /> : undefined}
+                  onClick={() => onEdit(meal)}
+                />
               </li>
             ))}
           </ul>

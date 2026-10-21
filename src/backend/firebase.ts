@@ -44,6 +44,7 @@ function mealsFrom(snapshot: QuerySnapshot): Meal[] {
 function createStore(db: Firestore, uid: string): Store {
   const meals = collection(db, 'users', uid, 'meals');
   const settings = collection(db, 'users', uid, 'settings');
+  const photos = collection(db, 'users', uid, 'photos');
   // Intervalle sur le seul champ "date" : pas d'index composite à créer.
   const range = (start: string, end: string) => query(meals, where('date', '>=', start), where('date', '<=', end));
 
@@ -63,6 +64,17 @@ function createStore(db: Firestore, uid: string): Store {
     },
     async deleteMeal(id) {
       deleteDoc(doc(meals, id)).catch(logError);
+      deleteDoc(doc(photos, id)).catch(logError);
+    },
+    async getPhoto(mealId) {
+      const snap = await getDoc(doc(photos, mealId));
+      return snap.exists() ? (snap.data().data as string) : undefined;
+    },
+    async putPhoto(mealId, dataUrl) {
+      setDoc(doc(photos, mealId), { data: dataUrl }).catch(logError);
+    },
+    async deletePhoto(mealId) {
+      deleteDoc(doc(photos, mealId)).catch(logError);
     },
     watchSetting: (key, callback) =>
       onSnapshot(doc(settings, key), (s) => callback(s.exists() ? s.data().value : undefined), logError),

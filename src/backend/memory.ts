@@ -4,6 +4,7 @@ import type { Store, Unsubscribe } from './types';
 interface Saved {
   meals?: Meal[];
   settings?: Record<string, unknown>;
+  photos?: Record<string, string>;
 }
 
 /**
@@ -13,6 +14,7 @@ interface Saved {
 export function createMemoryStore(storageKey?: string): Store {
   const meals = new Map<string, Meal>();
   const settings = new Map<string, unknown>();
+  const photos = new Map<string, string>();
   const listeners = new Set<() => void>();
 
   if (storageKey) {
@@ -20,6 +22,7 @@ export function createMemoryStore(storageKey?: string): Store {
       const saved = JSON.parse(localStorage.getItem(storageKey) ?? '{}') as Saved;
       for (const m of saved.meals ?? []) meals.set(m.id, m);
       for (const [k, v] of Object.entries(saved.settings ?? {})) settings.set(k, v);
+      for (const [k, v] of Object.entries(saved.photos ?? {})) photos.set(k, v);
     } catch {
       // Contenu illisible : on repart de zéro.
     }
@@ -27,7 +30,11 @@ export function createMemoryStore(storageKey?: string): Store {
 
   const changed = () => {
     if (storageKey) {
-      const saved: Saved = { meals: [...meals.values()], settings: Object.fromEntries(settings) };
+      const saved: Saved = {
+        meals: [...meals.values()],
+        settings: Object.fromEntries(settings),
+        photos: Object.fromEntries(photos),
+      };
       localStorage.setItem(storageKey, JSON.stringify(saved));
     }
     listeners.forEach((l) => l());
@@ -49,6 +56,16 @@ export function createMemoryStore(storageKey?: string): Store {
     },
     async deleteMeal(id) {
       meals.delete(id);
+      photos.delete(id);
+      changed();
+    },
+    getPhoto: async (mealId) => photos.get(mealId),
+    async putPhoto(mealId, dataUrl) {
+      photos.set(mealId, dataUrl);
+      changed();
+    },
+    async deletePhoto(mealId) {
+      photos.delete(mealId);
       changed();
     },
     watchSetting: (key, callback) => subscribe(() => callback(settings.get(key))),

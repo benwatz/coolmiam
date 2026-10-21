@@ -216,7 +216,7 @@ README.md
 
 - Comptes utilisateurs, synchronisation, sauvegarde cloud.
 - Calcul de calories ou de valeurs nutritionnelles, base d'aliments.
-- Photos des repas.
+- Photos multiples par repas (une seule photo facultative est gérée depuis octobre 2026).
 - Statistiques et graphiques.
 - Multi-utilisateurs, multilingue.
 

@@ -15,7 +15,8 @@ export function sortMeals(meals: Meal[]): Meal[] {
 
 export type MealErrors = Partial<Record<keyof MealInput, string>>;
 
-export function validateMeal(input: MealInput): MealErrors {
+/** La description est facultative lorsque le repas a une photo. */
+export function validateMeal(input: MealInput, hasPhoto = false): MealErrors {
   const errors: MealErrors = {};
   if (!isValidDateStr(input.date)) {
     errors.date = 'Veuillez saisir une date valide.';
@@ -27,7 +28,7 @@ export function validateMeal(input: MealInput): MealErrors {
     errors.type = 'Veuillez choisir un type de repas.';
   }
   const description = input.description.trim();
-  if (description.length === 0) {
+  if (description.length === 0 && !hasPhoto) {
     errors.description = 'La description est obligatoire.';
   } else if (description.length > DESCRIPTION_MAX) {
     errors.description = `La description ne doit pas dépasser ${DESCRIPTION_MAX} caractères.`;
