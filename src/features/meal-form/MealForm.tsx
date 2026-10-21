@@ -293,7 +293,7 @@ export function MealForm({ mealId, initialValues, colors, onSaved, onCancel, onD
               </div>
             ) : (
               <button type="button" class="photo-zone__take" onClick={() => fileInput.current?.click()}>
-                <IconCamera size={48} />
+                <IconCamera size={24} />
                 <span>Prendre une photo</span>
               </button>
             )}
