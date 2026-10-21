@@ -47,6 +47,30 @@ function setColor(doc: jsPDF, kind: 'text' | 'fill' | 'draw', hex: string) {
   else doc.setDrawColor(r, g, b);
 }
 
+const SNEAKER_SCALE = 0.8;
+/** Largeur de l'icône de basket (12 unités de dessin), en millimètres. */
+const SNEAKER_WIDTH = 12 * SNEAKER_SCALE;
+
+/** Dessine une basket en vectoriel (pas de glyphe : Roboto n'en a pas) ; (x, y) = coin haut gauche. */
+function drawSneaker(doc: jsPDF, x: number, y: number, background: string, color: string) {
+  const s = SNEAKER_SCALE;
+  setColor(doc, 'fill', color);
+  doc.lines(
+    [[4, 0], [0.5, 2], [2.5, 1.5], [4, 1.5], [1, 1], [0, 1.5], [-12, 0]],
+    x,
+    y,
+    [s, s],
+    'F',
+    true,
+  );
+  // Semelle et lacets en négatif, dans la couleur du fond.
+  setColor(doc, 'draw', background);
+  doc.setLineWidth(0.3);
+  doc.line(x, y + 6 * s, x + 12 * s, y + 6 * s);
+  doc.line(x + 5.4 * s, y + 3 * s, x + 6.4 * s, y + 2 * s);
+  doc.line(x + 7.2 * s, y + 3.9 * s, x + 8.2 * s, y + 2.9 * s);
+}
+
 function measureMeal(doc: jsPDF, meal: Meal, photo?: string): MealMeasure {
   doc.setFont(PDF_FONT, 'normal');
   doc.setFontSize(FONT_SIZE.body);
@@ -125,8 +149,13 @@ function drawItem(doc: jsPDF, item: PlacedItem, opts: PdfOptions) {
       doc.setFont(PDF_FONT, 'bold');
       doc.setFontSize(FONT_SIZE.firstLine);
       doc.text(`${meal.time} - ${MEAL_TYPE_LABELS[meal.type]}`, tx, ty, { baseline: 'top' });
+      let rightEdge = x + CONTENT_WIDTH - SIZES.blockPadding;
       if (meal.extra) {
-        doc.text('EXTRA', x + CONTENT_WIDTH - SIZES.blockPadding, ty, { baseline: 'top', align: 'right' });
+        doc.text('EXTRA', rightEdge, ty, { baseline: 'top', align: 'right' });
+        rightEdge -= doc.getTextWidth('EXTRA') + 3;
+      }
+      if (meal.type === 'sport') {
+        drawSneaker(doc, rightEdge - SNEAKER_WIDTH, ty - 0.5, background, textColor);
       }
       ty += SIZES.firstLineHeight + SIZES.innerGap;
 

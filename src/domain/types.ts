@@ -1,4 +1,4 @@
-export const MEAL_TYPES = ['petit_dejeuner', 'dejeuner', 'collation', 'diner', 'autre'] as const;
+export const MEAL_TYPES = ['petit_dejeuner', 'dejeuner', 'collation', 'diner', 'autre', 'sport'] as const;
 
 export type MealType = (typeof MEAL_TYPES)[number];
 
@@ -31,6 +31,7 @@ export const MEAL_TYPE_LABELS: Record<MealType, string> = {
   collation: 'Collation',
   diner: 'Dîner',
   autre: 'Autre',
+  sport: 'Sport',
 };
 
 export const DEFAULT_TYPE_COLORS: TypeColors = {
@@ -39,6 +40,7 @@ export const DEFAULT_TYPE_COLORS: TypeColors = {
   collation: '#D9C8F0',
   diner: '#B9D7F2',
   autre: '#E0E0E0',
+  sport: '#F8C9A8',
 };
 
 /** Couleur du contour "Extra", non modifiable. */

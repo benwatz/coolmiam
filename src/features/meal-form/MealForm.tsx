@@ -206,7 +206,7 @@ export function MealForm({ mealId, initialValues, colors, onSaved, onCancel, onD
           </div>
 
           <fieldset class="field type-picker" id="field-type" tabIndex={-1}>
-            <legend>Type de repas</legend>
+            <legend>Type</legend>
             <div class="type-picker__options">
               {MEAL_TYPES.map((type) => {
                 const bg = colors[type];
