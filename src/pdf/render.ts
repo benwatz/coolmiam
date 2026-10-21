@@ -1,7 +1,8 @@
 import { jsPDF } from 'jspdf';
 import { hexToRgb, textColorFor } from '../domain/contrast';
 import { capitalize, dateRange, formatLongDate, formatShortDate } from '../domain/dates';
-import { EXTRA_COLOR, MEAL_TYPE_LABELS, type Meal, type TypeColors } from '../domain/types';
+import { ICON_STROKE, MEAL_ICONS } from '../domain/mealIcons';
+import { EXTRA_COLOR, MEAL_TYPE_LABELS, type Meal, type MealType, type TypeColors } from '../domain/types';
 import { registerFonts, PDF_FONT } from './fonts';
 import {
   CONTENT_WIDTH,
@@ -47,28 +48,32 @@ function setColor(doc: jsPDF, kind: 'text' | 'fill' | 'draw', hex: string) {
   else doc.setDrawColor(r, g, b);
 }
 
-const SNEAKER_SCALE = 0.8;
-/** Largeur de l'icône de basket (12 unités de dessin), en millimètres. */
-const SNEAKER_WIDTH = 12 * SNEAKER_SCALE;
+/** Côté du pictogramme du type de repas, en millimètres (grille de 24 unités). */
+const ICON_SIZE = 6;
 
-/** Dessine une basket en vectoriel (pas de glyphe : Roboto n'en a pas) ; (x, y) = coin haut gauche. */
-function drawSneaker(doc: jsPDF, x: number, y: number, background: string, color: string) {
-  const s = SNEAKER_SCALE;
-  setColor(doc, 'fill', color);
-  doc.lines(
-    [[4, 0], [0.5, 2], [2.5, 1.5], [4, 1.5], [1, 1], [0, 1.5], [-12, 0]],
-    x,
-    y,
-    [s, s],
-    'F',
-    true,
-  );
-  // Semelle et lacets en négatif, dans la couleur du fond.
-  setColor(doc, 'draw', background);
-  doc.setLineWidth(0.3);
-  doc.line(x, y + 6 * s, x + 12 * s, y + 6 * s);
-  doc.line(x + 5.4 * s, y + 3 * s, x + 6.4 * s, y + 2 * s);
-  doc.line(x + 7.2 * s, y + 3.9 * s, x + 8.2 * s, y + 2.9 * s);
+/** Trace le pictogramme du type en vectoriel (Roboto n'a pas de glyphes) ; (x, y) = coin haut gauche. */
+function drawMealIcon(doc: jsPDF, type: MealType, x: number, y: number, color: string) {
+  const k = ICON_SIZE / 24;
+  setColor(doc, 'draw', color);
+  doc.setLineWidth(ICON_STROKE * k);
+  doc.setLineCap('round');
+  doc.setLineJoin('round');
+  for (const shape of MEAL_ICONS[type]) {
+    if (shape.kind === 'circle') {
+      doc.circle(x + shape.cx * k, y + shape.cy * k, shape.r * k, 'S');
+    } else {
+      const [first, ...rest] = shape.pts;
+      let px = first[0];
+      let py = first[1];
+      const deltas = rest.map(([qx, qy]) => {
+        const d = [(qx - px) * k, (qy - py) * k];
+        px = qx;
+        py = qy;
+        return d;
+      });
+      doc.lines(deltas, x + first[0] * k, y + first[1] * k, [1, 1], 'S', Boolean(shape.closed));
+    }
+  }
 }
 
 function measureMeal(doc: jsPDF, meal: Meal, photo?: string): MealMeasure {
@@ -154,9 +159,7 @@ function drawItem(doc: jsPDF, item: PlacedItem, opts: PdfOptions) {
         doc.text('EXTRA', rightEdge, ty, { baseline: 'top', align: 'right' });
         rightEdge -= doc.getTextWidth('EXTRA') + 3;
       }
-      if (meal.type === 'sport') {
-        drawSneaker(doc, rightEdge - SNEAKER_WIDTH, ty - 0.5, background, textColor);
-      }
+      drawMealIcon(doc, meal.type, rightEdge - ICON_SIZE, ty - 1, textColor);
       ty += SIZES.firstLineHeight + SIZES.innerGap;
 
       doc.setFont(PDF_FONT, 'normal');

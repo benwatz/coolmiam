@@ -321,6 +321,10 @@ button.meal-card {
   flex: 1;
 }
 
+.meal-type-icon {
+  flex: none;
+}
+
 .meal-card__extra {
   padding: 2px 8px;
   border-radius: 6px;
