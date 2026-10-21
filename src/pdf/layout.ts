@@ -44,7 +44,8 @@ export function fitPhoto(pixelWidth: number, pixelHeight: number): { width: numb
   return { width: pixelWidth * scale, height: pixelHeight * scale };
 }
 
-export function mealBlockHeight(m: MealMeasure): number {
+/** Hauteur du fond coloré : texte uniquement, la photo est posée en dessous sur le fond blanc de la page. */
+export function mealColorHeight(m: MealMeasure): number {
   let h = 2 * SIZES.blockPadding + SIZES.firstLineHeight;
   if (m.descLines.length > 0) {
     h += SIZES.innerGap + m.descLines.length * SIZES.bodyLineHeight;
@@ -52,10 +53,11 @@ export function mealBlockHeight(m: MealMeasure): number {
   if (m.noteLines.length > 0) {
     h += SIZES.innerGap + m.noteLines.length * SIZES.bodyLineHeight;
   }
-  if (m.photo) {
-    h += SIZES.innerGap + m.photo.height;
-  }
   return h;
+}
+
+export function mealBlockHeight(m: MealMeasure): number {
+  return mealColorHeight(m) + (m.photo ? SIZES.innerGap + m.photo.height : 0);
 }
 
 export interface DayInput {

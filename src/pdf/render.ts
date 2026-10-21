@@ -10,6 +10,7 @@ import {
   groupByDay,
   layoutJournal,
   fitPhoto,
+  mealColorHeight,
   type MealMeasure,
   type PlacedItem,
 } from './layout';
@@ -106,15 +107,16 @@ function drawItem(doc: jsPDF, item: PlacedItem, opts: PdfOptions) {
       const { meal, measure } = item;
       const background = opts.colors[meal.type];
       const textColor = textColorFor(background);
+      const colorHeight = mealColorHeight(measure);
       setColor(doc, 'fill', background);
       if (meal.extra) {
         setColor(doc, 'draw', EXTRA_COLOR);
         doc.setLineWidth(EXTRA_BORDER);
         // Le contour est tracé à l'intérieur du bloc pour ne pas dépasser les marges.
         const inset = EXTRA_BORDER / 2;
-        doc.roundedRect(x + inset, item.y + inset, CONTENT_WIDTH - EXTRA_BORDER, item.height - EXTRA_BORDER, 1.5, 1.5, 'FD');
+        doc.roundedRect(x + inset, item.y + inset, CONTENT_WIDTH - EXTRA_BORDER, colorHeight - EXTRA_BORDER, 1.5, 1.5, 'FD');
       } else {
-        doc.roundedRect(x, item.y, CONTENT_WIDTH, item.height, 1.5, 1.5, 'F');
+        doc.roundedRect(x, item.y, CONTENT_WIDTH, colorHeight, 1.5, 1.5, 'F');
       }
 
       const tx = x + SIZES.blockPadding;
@@ -144,8 +146,7 @@ function drawItem(doc: jsPDF, item: PlacedItem, opts: PdfOptions) {
       }
       const image = opts.photos?.get(meal.id);
       if (measure.photo && image) {
-        if (measure.descLines.length > 0 || measure.noteLines.length > 0) ty += SIZES.innerGap;
-        doc.addImage(image, 'JPEG', tx, ty, measure.photo.width, measure.photo.height);
+        doc.addImage(image, 'JPEG', tx, item.y + colorHeight + SIZES.innerGap, measure.photo.width, measure.photo.height);
       }
       break;
     }
